@@ -2,7 +2,14 @@
 Theme Name: Vite React Theme
 Theme URI: http://example.com/vite-react-theme
 Author: Developer
-Description: A hybrid WordPress theme utilizing Vite and React for specific components.
-Version: 1.0.0
+Author URI: http://example.com
+Description: A clean, professional, fully customizable WordPress theme with Vite + React, drag-and-drop section ordering, live Customizer controls for colors, typography, hero, features, CTA, social links, and footer.
+Version: 3.0.0
+Requires at least: 6.0
+Tested up to: 6.7
+Requires PHP: 7.4
+License: GNU General Public License v2 or later
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
 Text Domain: vite-react-theme
+Tags: custom-logo, custom-menu, custom-colors, featured-images, theme-options, one-column, two-columns, light, modern
 */
