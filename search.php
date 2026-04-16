@@ -1,7 +1,7 @@
 <?php
 /**
- * Page template — SPA Shell
- * React handles all page rendering.
+ * Search results template — SPA Shell
+ * React handles all search rendering.
  *
  * @package ViteReactTheme
  */

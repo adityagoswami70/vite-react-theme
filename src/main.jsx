@@ -1,16 +1,31 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import App from './App.jsx'
-import './index.css'
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
+import { ThemeProvider } from './context/ThemeContext';
+import App from './App.jsx';
+import './styles/theme.css';
 
-// We only want to render our React component where a specific DOM element exists.
-// This prevents React from throwing an error if the element is missing on a specific WordPress page.
-const rootElement = document.getElementById('react-dashboard') || document.getElementById('root');
+/**
+ * Main entry point — mounts the React SPA with Router & ThemeProvider.
+ * WordPress passes all theme data via window.VRT_DATA (wp_localize_script).
+ */
+const rootElement = document.getElementById('vrt-app');
 
 if (rootElement) {
+  // Get the base URL from WordPress (handles subdirectory installs)
+  // BrowserRouter basename must NOT have a trailing slash
+  let baseUrl = window.VRT_DATA?.siteInfo?.baseUrl || '/';
+  if (baseUrl.length > 1 && baseUrl.endsWith('/')) {
+    baseUrl = baseUrl.slice(0, -1);
+  }
+
+  console.log('[VRT] Mounting React SPA, basename:', baseUrl, 'pathname:', location.pathname);
+
   ReactDOM.createRoot(rootElement).render(
-    <React.StrictMode>
-      <App />
-    </React.StrictMode>,
-  )
+    <BrowserRouter basename={baseUrl}>
+      <ThemeProvider>
+        <App />
+      </ThemeProvider>
+    </BrowserRouter>
+  );
 }

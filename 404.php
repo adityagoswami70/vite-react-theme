@@ -1,7 +1,7 @@
 <?php
 /**
- * Page template — SPA Shell
- * React handles all page rendering.
+ * 404 template — SPA Shell
+ * React handles 404 page rendering.
  *
  * @package ViteReactTheme
  */
