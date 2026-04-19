@@ -41,7 +41,7 @@ export default function Footer() {
     youtube: 'Yt',
   };
 
-  const hasSocial = Object.values(social).some(v => v);
+  const hasSocial = social.show && Object.values(social).filter(v => typeof v === 'string').some(v => v);
   const year = new Date().getFullYear();
   const copyright = footer.copyright || `© ${year} ${siteInfo.name}. All rights reserved.`;
 

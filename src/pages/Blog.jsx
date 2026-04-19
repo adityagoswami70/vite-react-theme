@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { usePosts } from '../hooks/useWordPress';
+import { useTheme } from '../context/ThemeContext';
 import PostCard from '../components/PostCard';
 import CategoryFilter from '../components/CategoryFilter';
 import Pagination from '../components/Pagination';
@@ -9,6 +10,7 @@ import Sidebar from '../components/Sidebar';
 import AnimatedSection from '../components/AnimatedSection';
 
 export default function Blog() {
+  const { blog } = useTheme();
   const [searchParams, setSearchParams] = useSearchParams();
   const [page, setPage] = useState(1);
   const [category, setCategory] = useState(searchParams.get('cat') ? parseInt(searchParams.get('cat')) : null);
@@ -16,7 +18,7 @@ export default function Blog() {
 
   const { posts, loading, totalPages, total } = usePosts({
     page,
-    perPage: 9,
+    perPage: blog.perPage || 9,
     category,
   });
 
@@ -41,29 +43,31 @@ export default function Blog() {
   return (
     <>
       {/* Blog Hero */}
-      <div className="blog-hero">
-        <div className="container">
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            Blog
-          </motion.h1>
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-          >
-            Stories, tips, and insights from our team
-          </motion.p>
+      {blog.heroShow && (
+        <div className="blog-hero">
+          <div className="container">
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+            >
+              {blog.heroTitle}
+            </motion.h1>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+            >
+              {blog.heroSubtitle}
+            </motion.p>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Blog Content */}
       <section className="section">
         <div className="container">
-          <div className="content-with-sidebar">
+          <div className={`content-with-sidebar ${!blog.sidebarShow ? 'no-sidebar' : ''}`}>
             <div>
               {/* Toolbar */}
               <div className="blog-toolbar">
@@ -124,7 +128,7 @@ export default function Blog() {
               )}
             </div>
 
-            <Sidebar />
+            {blog.sidebarShow && <Sidebar />}
           </div>
         </div>
       </section>

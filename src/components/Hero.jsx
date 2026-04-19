@@ -74,12 +74,12 @@ export default function Hero() {
 
         <motion.div className="hero-actions" variants={itemVariants}>
           {hero.btn1Text && (
-            <Link to={hero.btn1Url || '#features'} className="btn btn-primary">
+            <Link to={hero.btn1Url || '#features'} id="hero-btn-primary" className="btn btn-primary">
               {hero.btn1Text}
             </Link>
           )}
           {hero.btn2Text && (
-            <Link to={hero.btn2Url || '#latest-posts'} className="btn btn-secondary">
+            <Link to={hero.btn2Url || '#latest-posts'} id="hero-btn-secondary" className="btn btn-secondary">
               {hero.btn2Text}
             </Link>
           )}

@@ -43,7 +43,11 @@ export default function Navbar() {
           <div className="navbar-inner">
             <Link to="/" className="navbar-brand">
               {siteInfo.logoUrl && (
-                <img src={siteInfo.logoUrl} alt={siteInfo.name} />
+                <img 
+                  src={siteInfo.logoUrl} 
+                  alt={siteInfo.name} 
+                  style={{ height: `${navbar.logoHeight}px` }}
+                />
               )}
               {siteInfo.name}
             </Link>

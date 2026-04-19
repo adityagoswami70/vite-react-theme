@@ -1,15 +1,10 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import AnimatedSection from '../components/AnimatedSection';
-
-const contactInfo = [
-  { icon: '📧', label: 'Email', value: 'hello@example.com' },
-  { icon: '📱', label: 'Phone', value: '+1 (555) 123-4567' },
-  { icon: '📍', label: 'Location', value: 'San Francisco, CA' },
-  { icon: '⏰', label: 'Hours', value: 'Mon–Fri, 9AM–6PM PST' },
-];
+import { useTheme } from '../context/ThemeContext';
 
 export default function Contact() {
+  const { contact } = useTheme();
   const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
   const [status, setStatus] = useState('');
 
@@ -34,10 +29,10 @@ export default function Contact() {
             transition={{ duration: 0.6 }}
           >
             <h1 className="entry-title" style={{ marginBottom: '0.75rem' }}>
-              <span className="text-gradient">Get in Touch</span>
+              <span className="text-gradient">{contact.hero.title}</span>
             </h1>
             <p style={{ color: 'var(--color-text-secondary)', fontSize: '1.05rem', maxWidth: 500, margin: '0 auto' }}>
-              Have a question or want to work together? We'd love to hear from you.
+              {contact.hero.subtitle}
             </p>
           </motion.div>
         </div>
@@ -50,7 +45,7 @@ export default function Contact() {
             {/* Info Cards */}
             <AnimatedSection animation="slide-left">
               <div className="contact-info-cards">
-                {contactInfo.map((item, i) => (
+                {contact.info.map((item, i) => (
                   <div key={i} className="contact-info-card">
                     <div className="contact-info-icon">{item.icon}</div>
                     <div>
@@ -65,7 +60,7 @@ export default function Contact() {
             {/* Form */}
             <AnimatedSection animation="slide-right">
               <div className="contact-form">
-                <h3>Send us a message</h3>
+                <h3>{contact.formTitle}</h3>
 
                 {status && (
                   <div style={{

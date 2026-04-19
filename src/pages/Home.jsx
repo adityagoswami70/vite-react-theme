@@ -17,12 +17,19 @@ const sectionComponents = {
 };
 
 export default function Home() {
-  const { sectionOrder } = useTheme();
+  const theme = useTheme();
+  const { sectionOrder } = theme;
 
   return (
     <>
       {sectionOrder.map((section) => {
-        if (!section.enabled) return null;
+        // Evaluate the existing legacy show flag from WP Customizer (e.g. theme.hero.show)
+        const sectionConfig = theme[section.id];
+        const isLegacyShow = sectionConfig && sectionConfig.show !== undefined ? sectionConfig.show : true;
+
+        // Respect both the new Structure visibility and the legacy "Show Section" switches
+        if (!section.enabled || !isLegacyShow) return null;
+        
         const Component = sectionComponents[section.id];
         if (!Component) return null;
         return <Component key={section.id} />;

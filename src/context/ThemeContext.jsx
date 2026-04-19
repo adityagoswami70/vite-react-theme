@@ -1,4 +1,4 @@
-import React, { createContext, useContext } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
 /**
  * ThemeContext — provides all WordPress customizer values 
@@ -85,6 +85,7 @@ const defaults = {
     layout: 'grid',
   },
   social: {
+    show: true,
     twitter: '',
     facebook: '',
     instagram: '',
@@ -100,9 +101,26 @@ const defaults = {
     copyright: '',
   },
   navbar: {
+    show: true,
     style: 'glass',
     showSearch: true,
     sticky: true,
+    logoHeight: 32,
+  },
+  blog: {
+    heroShow: true,
+    heroTitle: 'Blog',
+    heroSubtitle: 'Stories, tips, and insights from our team',
+    sidebarShow: true,
+    perPage: 9,
+    card: {
+      showImage: true,
+      showDate: true,
+      showCategory: true,
+      showExcerpt: true,
+      readMoreText: 'Read more',
+      excerptLength: 25,
+    },
   },
   layout: {
     containerMax: 1200,
@@ -149,10 +167,46 @@ const ThemeContext = createContext(defaults);
 
 export function ThemeProvider({ children }) {
   const wpData = typeof window !== 'undefined' && window.VRT_DATA ? window.VRT_DATA : {};
-  const value = mergeDeep(defaults, wpData);
+  const initialValue = mergeDeep(defaults, wpData);
+
+  const [themeState, setThemeState] = useState(() => {
+    // Only persist/restore local session state if we are inside the WP Customizer Preview
+    const isCustomizer = typeof window !== 'undefined' && window.wp && window.wp.customize;
+    if (isCustomizer) {
+      try {
+        const sessionVal = sessionStorage.getItem('vrt_theme_preview_state');
+        if (sessionVal) {
+          return mergeDeep(initialValue, JSON.parse(sessionVal));
+        }
+      } catch (e) {
+        console.warn('Could not restore customizer state from session', e);
+      }
+    }
+    return initialValue;
+  });
+
+  // Keep sessionStorage in sync while in the customizer
+  useEffect(() => {
+    const isCustomizer = typeof window !== 'undefined' && window.wp && window.wp.customize;
+    if (isCustomizer) {
+       sessionStorage.setItem('vrt_theme_preview_state', JSON.stringify(themeState));
+    }
+  }, [themeState]);
+
+  // Listen to changes from WordPress customizer-preview.js
+  useEffect(() => {
+    const handleStructureUpdate = (e) => {
+      setThemeState((prevState) => ({
+        ...prevState,
+        sectionOrder: e.detail,
+      }));
+    };
+    window.addEventListener('vrt_structure_update', handleStructureUpdate);
+    return () => window.removeEventListener('vrt_structure_update', handleStructureUpdate);
+  }, []);
 
   return (
-    <ThemeContext.Provider value={value}>
+    <ThemeContext.Provider value={themeState}>
       {children}
     </ThemeContext.Provider>
   );

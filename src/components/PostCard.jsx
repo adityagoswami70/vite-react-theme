@@ -1,11 +1,15 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { getFeaturedImage, getCategories, truncate } from '../hooks/useWordPress';
+import { useTheme } from '../context/ThemeContext';
 
 export default function PostCard({ post, layout = 'grid' }) {
+  const { blog } = useTheme();
+  const cardSettings = blog.card || {};
+  
   const image = getFeaturedImage(post);
   const categories = getCategories(post);
-  const excerpt = truncate(post.excerpt?.rendered || '', 25);
+  const excerpt = truncate(post.excerpt?.rendered || '', cardSettings.excerptLength || 25);
   const date = new Date(post.date).toLocaleDateString('en-US', {
     year: 'numeric', month: 'short', day: 'numeric',
   });
@@ -13,7 +17,7 @@ export default function PostCard({ post, layout = 'grid' }) {
 
   return (
     <article className="post-card">
-      {image && (
+      {cardSettings.showImage && image && (
         <Link to={slug} className="post-card-image-wrap">
           <img
             className="post-card-image"
@@ -25,19 +29,19 @@ export default function PostCard({ post, layout = 'grid' }) {
       )}
       <div className="post-card-body">
         <div className="post-card-meta">
-          {categories.length > 0 && (
+          {cardSettings.showCategory && categories.length > 0 && (
             <span className="post-card-tag">
               {categories[0]?.name || 'Uncategorized'}
             </span>
           )}
-          <span className="post-card-date">{date}</span>
+          {cardSettings.showDate && <span className="post-card-date">{date}</span>}
         </div>
         <h3>
           <Link to={slug} dangerouslySetInnerHTML={{ __html: post.title?.rendered }} />
         </h3>
-        <p className="post-card-excerpt">{excerpt}</p>
+        {cardSettings.showExcerpt && <p className="post-card-excerpt">{excerpt}</p>}
         <Link to={slug} className="post-card-link">
-          Read more <span aria-hidden="true">→</span>
+          {cardSettings.readMoreText} <span aria-hidden="true">→</span>
         </Link>
       </div>
     </article>

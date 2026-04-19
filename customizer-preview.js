@@ -38,6 +38,13 @@
     api('vrt_hero_btn1_url', function (v) { v.bind(function (u) { $('#hero-btn-primary').attr('href', u); }); });
     api('vrt_hero_btn2_text', function (v) { v.bind(function (t) { $('#hero-btn-secondary').text(t); }); });
     api('vrt_hero_btn2_url', function (v) { v.bind(function (u) { $('#hero-btn-secondary').attr('href', u); }); });
+    api('vrt_hero_bg_image', function (v) { v.bind(function (url) { 
+        if (url) {
+            $('.hero').css({ 'background-image': 'url(' + url + ')', 'background-size': 'cover', 'background-position': 'center' });
+        } else {
+            $('.hero').css({ 'background-image': 'none' });
+        }
+    }); });
 
     // Features
     api('vrt_features_label', function (v) { v.bind(function (t) { $('#features .section-label').text(t); }); });
@@ -67,5 +74,19 @@
     api('vrt_footer_col2_title', function (v) { v.bind(function (t) { $('.footer-col[data-col="2"] h4').text(t); }); });
     api('vrt_footer_col3_title', function (v) { v.bind(function (t) { $('.footer-col[data-col="3"] h4').text(t); }); });
     api('vrt_footer_copyright', function (v) { v.bind(function (t) { if (t) $('.footer-copyright').text(t); }); });
+
+    // Site Structure (Live Preview for React)
+    api('vrt_theme_structure', function (v) {
+        v.bind(function (newval) {
+            if (newval) {
+                try {
+                    var parsed = JSON.parse(newval);
+                    window.dispatchEvent(new CustomEvent('vrt_structure_update', { detail: parsed }));
+                } catch (e) {
+                    // Ignore JSON parsing errors
+                }
+            }
+        });
+    });
 
 })(jQuery);

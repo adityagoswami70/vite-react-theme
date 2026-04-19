@@ -10,6 +10,7 @@ export default defineConfig({
       input: {
         main: 'src/main.jsx',
         admin: 'src/admin.jsx',
+        customizer: 'src/customizer-structure.jsx',
       },
     },
   },

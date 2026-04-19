@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
+import { useTheme } from './context/ThemeContext';
 
 // Layout
 import Navbar from './components/Navbar';
@@ -50,13 +51,20 @@ function AnimatedPage({ children }) {
 
 export default function App() {
   const location = useLocation();
+  const theme = useTheme();
 
   return (
     <div className="site">
       <Preloader />
-      <Navbar />
+      {theme.navbar.show && <Navbar />}
 
-      <main id="content" className="site-main" style={{ paddingTop: 'var(--navbar-height)' }}>
+      <main 
+        id="content" 
+        className="site-main" 
+        style={{ 
+          paddingTop: theme.navbar.show ? '3.75rem' : '0' 
+        }}
+      >
         <ScrollRestoration />
         <AnimatePresence mode="wait">
           <Routes location={location} key={location.pathname}>
@@ -72,7 +80,7 @@ export default function App() {
         </AnimatePresence>
       </main>
 
-      <Footer />
+      {theme.footer.show && <Footer />}
       <ScrollToTop />
     </div>
   );

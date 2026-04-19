@@ -85,7 +85,7 @@ function vrt_scripts() {
 add_action( 'wp_enqueue_scripts', 'vrt_scripts' );
 
 function vrt_script_type_module( $tag, $handle ) {
-    if ( in_array( $handle, array( 'vite-client', 'vite-react-main', 'vrt-admin-app' ), true ) ) {
+    if ( in_array( $handle, array( 'vite-client', 'vite-react-main', 'vrt-admin-app', 'vrt-customizer-app' ), true ) ) {
         $tag = str_replace( ' src=', ' type="module" src=', $tag );
     }
     // Inject React Fast Refresh preamble before main.jsx in dev mode
@@ -158,6 +158,7 @@ function vrt_get_theme_data() {
             'layout' => get_theme_mod( 'vrt_posts_layout', 'grid' ),
         ),
         'social' => array(
+            'show'      => (bool) get_theme_mod( 'vrt_social_show', true ),
             'twitter'   => get_theme_mod( 'vrt_social_twitter', '' ),
             'facebook'  => get_theme_mod( 'vrt_social_facebook', '' ),
             'instagram' => get_theme_mod( 'vrt_social_instagram', '' ),
@@ -173,9 +174,26 @@ function vrt_get_theme_data() {
             'copyright' => get_theme_mod( 'vrt_footer_copyright', '' ),
         ),
         'navbar' => array(
+            'show'       => (bool) get_theme_mod( 'vrt_navbar_show', true ),
             'style'      => get_theme_mod( 'vrt_navbar_style', 'glass' ),
             'showSearch' => (bool) get_theme_mod( 'vrt_navbar_show_search', true ),
             'sticky'     => (bool) get_theme_mod( 'vrt_navbar_sticky', true ),
+            'logoHeight' => intval( get_theme_mod( 'vrt_navbar_logo_height', 32 ) ),
+        ),
+        'blog' => array(
+            'heroShow'    => (bool) get_theme_mod( 'vrt_blog_hero_show', true ),
+            'heroTitle'   => get_theme_mod( 'vrt_blog_hero_title', 'Blog' ),
+            'heroSubtitle'=> get_theme_mod( 'vrt_blog_hero_subtitle', 'Stories, tips, and insights from our team' ),
+            'sidebarShow' => (bool) get_theme_mod( 'vrt_blog_sidebar_show', true ),
+            'perPage'     => intval( get_theme_mod( 'vrt_blog_per_page', 9 ) ),
+            'card'        => array(
+                'showImage'    => (bool) get_theme_mod( 'vrt_blog_card_show_image', true ),
+                'showDate'     => (bool) get_theme_mod( 'vrt_blog_card_show_date', true ),
+                'showCategory' => (bool) get_theme_mod( 'vrt_blog_card_show_category', true ),
+                'showExcerpt'  => (bool) get_theme_mod( 'vrt_blog_card_show_excerpt', true ),
+                'readMoreText' => get_theme_mod( 'vrt_blog_card_read_more', 'Read more' ),
+                'excerptLength'=> intval( get_theme_mod( 'vrt_blog_card_excerpt_length', 25 ) ),
+            ),
         ),
         'layout' => array(
             'containerMax'   => intval( get_theme_mod( 'vrt_layout_container_max', 1200 ) ),
@@ -195,6 +213,101 @@ function vrt_get_theme_data() {
             'showSearch' => (bool) get_theme_mod( 'vrt_404_show_search', true ),
         ),
         'sectionOrder' => vrt_get_section_order(),
+        'about' => vrt_get_about_data(),
+        'contact' => vrt_get_contact_data(),
+    );
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Helper Functions for About & Contact
+// ──────────────────────────────────────────────────────────────────────────────
+function vrt_get_about_data() {
+    $team = array();
+    for ($i = 1; $i <= 4; $i++) {
+        $name = get_theme_mod( "vrt_team_{$i}_name", '' );
+        if ($name) {
+            $team[] = array(
+                'name' => $name,
+                'role' => get_theme_mod( "vrt_team_{$i}_role", '' ),
+                'emoji' => get_theme_mod( "vrt_team_{$i}_emoji", '' ),
+            );
+        }
+    }
+    if (empty($team)) {
+        $team = array(
+            array('name' => 'Alex Morgan', 'role' => 'CEO & Founder', 'emoji' => '👨‍💻'),
+            array('name' => 'Sarah Chen', 'role' => 'Lead Designer', 'emoji' => '🎨'),
+            array('name' => 'Marcus Rivera', 'role' => 'CTO', 'emoji' => '⚙️'),
+            array('name' => 'Emily Watson', 'role' => 'Head of Marketing', 'emoji' => '📈'),
+        );
+    }
+    
+    $timeline = array();
+    for ($i = 1; $i <= 4; $i++) {
+        $year = get_theme_mod( "vrt_timeline_{$i}_year", '' );
+        if ($year) {
+            $timeline[] = array(
+                'year' => $year,
+                'title' => get_theme_mod( "vrt_timeline_{$i}_title", '' ),
+                'desc' => get_theme_mod( "vrt_timeline_{$i}_desc", '' ),
+            );
+        }
+    }
+    if (empty($timeline)) {
+        $timeline = array(
+            array('year' => '2024', 'title' => 'Company Founded', 'desc' => 'Started with a vision to create the best WordPress themes.'),
+            array('year' => '2024', 'title' => 'First 1K Users', 'desc' => 'Reached our first thousand active users within 3 months.'),
+            array('year' => '2025', 'title' => 'React Integration', 'desc' => 'Pioneered React-powered WordPress themes with Vite.'),
+            array('year' => '2026', 'title' => '10K+ Users', 'desc' => 'Growing community of developers and designers worldwide.'),
+        );
+    }
+
+    return array(
+        'hero' => array(
+            'title' => get_theme_mod('vrt_about_hero_title', 'About Us'),
+            'subtitle' => get_theme_mod('vrt_about_hero_subtitle', "We're building the future of WordPress themes with React, animations, and unmatched customization.")
+        ),
+        'story' => array(
+            get_theme_mod('vrt_about_story1', 'We started with a simple idea: WordPress themes should be as modern as the rest of the web. Too many themes are stuck in the past — slow, rigid, and hard to customize. We set out to change that.'),
+            get_theme_mod('vrt_about_story2', 'Our team combines deep expertise in React, WordPress, and modern web design to create themes that are fast, beautiful, and endlessly customizable. Every pixel is crafted, every animation is smooth, and every line of code is clean.'),
+            get_theme_mod('vrt_about_story3', 'Today, we serve thousands of developers and businesses worldwide, helping them build websites that truly stand out.')
+        ),
+        'teamLabel' => get_theme_mod('vrt_about_team_label', 'Our Team'),
+        'teamTitle' => get_theme_mod('vrt_about_team_title', 'Meet the Makers'),
+        'team' => $team,
+        'timelineLabel' => get_theme_mod('vrt_about_timeline_label', 'Our Journey'),
+        'timelineTitle' => get_theme_mod('vrt_about_timeline_title', 'Milestones'),
+        'timeline' => $timeline
+    );
+}
+
+function vrt_get_contact_data() {
+    $info = array();
+    for ($i = 1; $i <= 4; $i++) {
+        $icon = get_theme_mod( "vrt_contact_{$i}_icon", '' );
+        if ($icon) {
+            $info[] = array(
+                'icon' => $icon,
+                'label' => get_theme_mod( "vrt_contact_{$i}_label", '' ),
+                'value' => get_theme_mod( "vrt_contact_{$i}_value", '' ),
+            );
+        }
+    }
+    if (empty($info)) {
+        $info = array(
+            array('icon' => '📧', 'label' => 'Email', 'value' => 'hello@example.com'),
+            array('icon' => '📱', 'label' => 'Phone', 'value' => '+1 (555) 123-4567'),
+            array('icon' => '📍', 'label' => 'Location', 'value' => 'San Francisco, CA'),
+            array('icon' => '⏰', 'label' => 'Hours', 'value' => 'Mon–Fri, 9AM–6PM PST'),
+        );
+    }
+    return array(
+        'hero' => array(
+            'title' => get_theme_mod('vrt_contact_hero_title', 'Get in Touch'),
+            'subtitle' => get_theme_mod('vrt_contact_hero_subtitle', "Have a question or want to work together? We'd love to hear from you.")
+        ),
+        'info' => $info,
+        'formTitle' => get_theme_mod('vrt_contact_form_title', 'Send us a message')
     );
 }
 
@@ -398,10 +511,41 @@ function vrt_save_section_order() {
 add_action( 'wp_ajax_vrt_save_section_order', 'vrt_save_section_order' );
 
 // ──────────────────────────────────────────────────────────────────────────────
+// Customizer UI Script Needs
+// ──────────────────────────────────────────────────────────────────────────────
+function vrt_customize_controls_scripts() {
+    if ( IS_VITE_DEVELOPMENT ) {
+        wp_enqueue_script( 'vite-client', 'http://localhost:5173/@vite/client', array(), null );
+        wp_enqueue_script( 'vrt-customizer-app', 'http://localhost:5173/src/customizer-structure.jsx', array( 'vite-client', 'customize-controls' ), null, true );
+    } else {
+        $theme_dir = get_template_directory();
+        $theme_uri = get_template_directory_uri();
+        $manifest_path = $theme_dir . '/dist/.vite/manifest.json';
+        if ( file_exists( $manifest_path ) ) {
+            $manifest = json_decode( file_get_contents( $manifest_path ), true );
+            if ( isset( $manifest['src/customizer-structure.jsx'] ) ) {
+                $js = $manifest['src/customizer-structure.jsx']['file'];
+                wp_enqueue_script( 'vrt-customizer-app', $theme_uri . '/dist/' . $js, array( 'customize-controls' ), null, true );
+                if ( isset( $manifest['src/customizer-structure.jsx']['css'] ) ) {
+                    foreach ( $manifest['src/customizer-structure.jsx']['css'] as $i => $css ) {
+                        wp_enqueue_style( 'vrt-customizer-app-style-' . $i, $theme_uri . '/dist/' . $css, array(), null );
+                    }
+                }
+            }
+        }
+    }
+}
+add_action( 'customize_controls_enqueue_scripts', 'vrt_customize_controls_scripts' );
+
+// ──────────────────────────────────────────────────────────────────────────────
 // 11. Section Order Helper
 // ──────────────────────────────────────────────────────────────────────────────
 function vrt_get_section_order() {
-    $saved = get_option( 'vrt_section_order', '' );
+    $saved = get_theme_mod( 'vrt_theme_structure', '' );
+    if ( ! $saved ) {
+        $saved = get_option( 'vrt_section_order', '' );
+    }
+
     $default = array(
         array( 'id' => 'hero', 'enabled' => true ),
         array( 'id' => 'features', 'enabled' => true ),
