@@ -1,17 +1,17 @@
-<?php
+﻿<?php
 /**
- * Vite React Theme — functions and definitions
+ * Vite React Theme â€” functions and definitions
  *
  * @package ViteReactTheme
  * @version 4.0.0
  */
 
 define( 'VRT_VERSION', wp_get_theme()->get( 'Version' ) );
-define( 'IS_VITE_DEVELOPMENT', true );
+define( 'IS_VITE_DEVELOPMENT', false );
 
-// ──────────────────────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // 1. Theme Setup
-// ──────────────────────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function vrt_setup() {
     add_theme_support( 'title-tag' );
     add_theme_support( 'custom-logo', array(
@@ -34,9 +34,9 @@ function vrt_setup() {
 }
 add_action( 'after_setup_theme', 'vrt_setup' );
 
-// ──────────────────────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // 2. Widget Areas
-// ──────────────────────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function vrt_widgets_init() {
     register_sidebar( array(
         'name' => __( 'Main Sidebar', 'vite-react-theme' ), 'id' => 'sidebar-1',
@@ -53,9 +53,9 @@ function vrt_widgets_init() {
 }
 add_action( 'widgets_init', 'vrt_widgets_init' );
 
-// ──────────────────────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // 3. Enqueue Styles & Scripts
-// ──────────────────────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function vrt_scripts() {
     $theme_uri = get_template_directory_uri();
     $theme_dir = get_template_directory();
@@ -103,9 +103,9 @@ window.__vite_plugin_react_preamble_installed__ = true
 }
 add_filter( 'script_loader_tag', 'vrt_script_type_module', 10, 2 );
 
-// ──────────────────────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // 4. Theme Data for React (wp_localize_script)
-// ──────────────────────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function vrt_get_theme_data() {
     $logo_id  = get_theme_mod( 'custom_logo' );
     $logo_url = $logo_id ? wp_get_attachment_image_url( $logo_id, 'full' ) : '';
@@ -132,7 +132,7 @@ function vrt_get_theme_data() {
         ),
         'hero' => array(
             'show'     => (bool) get_theme_mod( 'vrt_hero_show', true ),
-            'badge'    => get_theme_mod( 'vrt_hero_badge', '✨ Welcome to the future' ),
+            'badge'    => get_theme_mod( 'vrt_hero_badge', 'âœ¨ Welcome to the future' ),
             'title'    => get_theme_mod( 'vrt_hero_title', 'Build Something Amazing' ),
             'subtitle' => get_theme_mod( 'vrt_hero_subtitle', 'A modern WordPress theme with clean design, powerful customization, and stunning animations.' ),
             'btn1Text' => get_theme_mod( 'vrt_hero_btn1_text', 'Get Started' ),
@@ -179,6 +179,26 @@ function vrt_get_theme_data() {
             'showSearch' => (bool) get_theme_mod( 'vrt_navbar_show_search', true ),
             'sticky'     => (bool) get_theme_mod( 'vrt_navbar_sticky', true ),
             'logoHeight' => intval( get_theme_mod( 'vrt_navbar_logo_height', 32 ) ),
+            'links'      => array_values( array_filter( array(
+                array(
+                    'title' => get_theme_mod( 'vrt_navbar_link_1_label', 'Home' ),
+                    'url'   => get_theme_mod( 'vrt_navbar_link_1_url', '/' ),
+                ),
+                array(
+                    'title' => get_theme_mod( 'vrt_navbar_link_2_label', 'Blog' ),
+                    'url'   => get_theme_mod( 'vrt_navbar_link_2_url', '/blog' ),
+                ),
+                array(
+                    'title' => get_theme_mod( 'vrt_navbar_link_3_label', 'About' ),
+                    'url'   => get_theme_mod( 'vrt_navbar_link_3_url', '/about' ),
+                ),
+                array(
+                    'title' => get_theme_mod( 'vrt_navbar_link_4_label', 'Contact' ),
+                    'url'   => get_theme_mod( 'vrt_navbar_link_4_url', '/contact' ),
+                ),
+            ), function(  ) {
+                return ! empty( ['title'] ) && ! empty( ['url'] );
+            } ) ),
         ),
         'blog' => array(
             'heroShow'    => (bool) get_theme_mod( 'vrt_blog_hero_show', true ),
@@ -218,9 +238,9 @@ function vrt_get_theme_data() {
     );
 }
 
-// ──────────────────────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Helper Functions for About & Contact
-// ──────────────────────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function vrt_get_about_data() {
     $team = array();
     for ($i = 1; $i <= 4; $i++) {
@@ -235,10 +255,10 @@ function vrt_get_about_data() {
     }
     if (empty($team)) {
         $team = array(
-            array('name' => 'Alex Morgan', 'role' => 'CEO & Founder', 'emoji' => '👨‍💻'),
-            array('name' => 'Sarah Chen', 'role' => 'Lead Designer', 'emoji' => '🎨'),
-            array('name' => 'Marcus Rivera', 'role' => 'CTO', 'emoji' => '⚙️'),
-            array('name' => 'Emily Watson', 'role' => 'Head of Marketing', 'emoji' => '📈'),
+            array('name' => 'Alex Morgan', 'role' => 'CEO & Founder', 'emoji' => 'ðŸ‘¨â€ðŸ’»'),
+            array('name' => 'Sarah Chen', 'role' => 'Lead Designer', 'emoji' => 'ðŸŽ¨'),
+            array('name' => 'Marcus Rivera', 'role' => 'CTO', 'emoji' => 'âš™ï¸'),
+            array('name' => 'Emily Watson', 'role' => 'Head of Marketing', 'emoji' => 'ðŸ“ˆ'),
         );
     }
     
@@ -268,7 +288,7 @@ function vrt_get_about_data() {
             'subtitle' => get_theme_mod('vrt_about_hero_subtitle', "We're building the future of WordPress themes with React, animations, and unmatched customization.")
         ),
         'story' => array(
-            get_theme_mod('vrt_about_story1', 'We started with a simple idea: WordPress themes should be as modern as the rest of the web. Too many themes are stuck in the past — slow, rigid, and hard to customize. We set out to change that.'),
+            get_theme_mod('vrt_about_story1', 'We started with a simple idea: WordPress themes should be as modern as the rest of the web. Too many themes are stuck in the past â€” slow, rigid, and hard to customize. We set out to change that.'),
             get_theme_mod('vrt_about_story2', 'Our team combines deep expertise in React, WordPress, and modern web design to create themes that are fast, beautiful, and endlessly customizable. Every pixel is crafted, every animation is smooth, and every line of code is clean.'),
             get_theme_mod('vrt_about_story3', 'Today, we serve thousands of developers and businesses worldwide, helping them build websites that truly stand out.')
         ),
@@ -295,10 +315,10 @@ function vrt_get_contact_data() {
     }
     if (empty($info)) {
         $info = array(
-            array('icon' => '📧', 'label' => 'Email', 'value' => 'hello@example.com'),
-            array('icon' => '📱', 'label' => 'Phone', 'value' => '+1 (555) 123-4567'),
-            array('icon' => '📍', 'label' => 'Location', 'value' => 'San Francisco, CA'),
-            array('icon' => '⏰', 'label' => 'Hours', 'value' => 'Mon–Fri, 9AM–6PM PST'),
+            array('icon' => 'ðŸ“§', 'label' => 'Email', 'value' => 'hello@example.com'),
+            array('icon' => 'ðŸ“±', 'label' => 'Phone', 'value' => '+1 (555) 123-4567'),
+            array('icon' => 'ðŸ“', 'label' => 'Location', 'value' => 'San Francisco, CA'),
+            array('icon' => 'â°', 'label' => 'Hours', 'value' => 'Monâ€“Fri, 9AMâ€“6PM PST'),
         );
     }
     return array(
@@ -311,9 +331,9 @@ function vrt_get_contact_data() {
     );
 }
 
-// ──────────────────────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // 5. Menu Helper
-// ──────────────────────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function vrt_get_menu_items( $location ) {
     $locations = get_nav_menu_locations();
     if ( empty( $locations[ $location ] ) ) return array();
@@ -338,23 +358,23 @@ function vrt_get_menu_items( $location ) {
     return $result;
 }
 
-// ──────────────────────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // 6. Feature Data Helper
-// ──────────────────────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function vrt_get_features_data() {
     $count = intval( get_theme_mod( 'vrt_feature_count', 6 ) );
     $defaults = array(
-        1 => array( '⚡', 'Lightning Fast', 'Vite-powered builds with instant hot module replacement.' ),
-        2 => array( '🎨', 'Beautiful Design', 'Clean, professional aesthetics with refined typography.' ),
-        3 => array( '📱', 'Fully Responsive', 'Looks perfect on every device — mobile, tablet, desktop.' ),
-        4 => array( '🔒', 'Secure & Reliable', 'Built with WordPress best practices for security.' ),
-        5 => array( '🚀', 'SEO Optimized', 'Semantic HTML and fast load times for higher ranking.' ),
-        6 => array( '🎯', 'Customizable', 'Change everything from the WordPress Customizer.' ),
+        1 => array( 'âš¡', 'Lightning Fast', 'Vite-powered builds with instant hot module replacement.' ),
+        2 => array( 'ðŸŽ¨', 'Beautiful Design', 'Clean, professional aesthetics with refined typography.' ),
+        3 => array( 'ðŸ“±', 'Fully Responsive', 'Looks perfect on every device â€” mobile, tablet, desktop.' ),
+        4 => array( 'ðŸ”’', 'Secure & Reliable', 'Built with WordPress best practices for security.' ),
+        5 => array( 'ðŸš€', 'SEO Optimized', 'Semantic HTML and fast load times for higher ranking.' ),
+        6 => array( 'ðŸŽ¯', 'Customizable', 'Change everything from the WordPress Customizer.' ),
     );
 
     $items = array();
     for ( $i = 1; $i <= $count; $i++ ) {
-        $d = isset( $defaults[ $i ] ) ? $defaults[ $i ] : array( '✦', 'Feature ' . $i, 'Describe this feature.' );
+        $d = isset( $defaults[ $i ] ) ? $defaults[ $i ] : array( 'âœ¦', 'Feature ' . $i, 'Describe this feature.' );
         $items[] = array(
             'icon'  => get_theme_mod( "vrt_feature_{$i}_icon", $d[0] ),
             'title' => get_theme_mod( "vrt_feature_{$i}_title", $d[1] ),
@@ -372,9 +392,9 @@ function vrt_get_features_data() {
     );
 }
 
-// ──────────────────────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // 7. Testimonial Data Helper
-// ──────────────────────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function vrt_get_testimonials_data() {
     $defaults = array(
         1 => array( 'Sarah Chen', 'Product Designer', 'This theme completely transformed our website. The animations are buttery smooth and the customizer options are incredible.' ),
@@ -409,15 +429,15 @@ function vrt_get_testimonials_data() {
     );
 }
 
-// ──────────────────────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // 8. Stats Data Helper
-// ──────────────────────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function vrt_get_stats_data() {
     $defaults = array(
-        1 => array( '🚀', '10K+', 'Active Users' ),
-        2 => array( '⭐', '4.9', 'Average Rating' ),
-        3 => array( '🌍', '50+', 'Countries' ),
-        4 => array( '💬', '1M+', 'Posts Created' ),
+        1 => array( 'ðŸš€', '10K+', 'Active Users' ),
+        2 => array( 'â­', '4.9', 'Average Rating' ),
+        3 => array( 'ðŸŒ', '50+', 'Countries' ),
+        4 => array( 'ðŸ’¬', '1M+', 'Posts Created' ),
     );
 
     $items = array();
@@ -436,14 +456,14 @@ function vrt_get_stats_data() {
     );
 }
 
-// ──────────────────────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // 9. Include Customizer
-// ──────────────────────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 require_once get_template_directory() . '/customizer.php';
 
-// ──────────────────────────────────────────────────────────────────────────────
-// 10. Admin Page — Section Manager (Drag & Drop)
-// ──────────────────────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// 10. Admin Page â€” Section Manager (Drag & Drop)
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function vrt_admin_menu() {
     add_theme_page(
         __( 'Section Manager', 'vite-react-theme' ),
@@ -510,9 +530,9 @@ function vrt_save_section_order() {
 }
 add_action( 'wp_ajax_vrt_save_section_order', 'vrt_save_section_order' );
 
-// ──────────────────────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Customizer UI Script Needs
-// ──────────────────────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function vrt_customize_controls_scripts() {
     if ( IS_VITE_DEVELOPMENT ) {
         wp_enqueue_script( 'vite-client', 'http://localhost:5173/@vite/client', array(), null );
@@ -537,9 +557,9 @@ function vrt_customize_controls_scripts() {
 }
 add_action( 'customize_controls_enqueue_scripts', 'vrt_customize_controls_scripts' );
 
-// ──────────────────────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // 11. Section Order Helper
-// ──────────────────────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function vrt_get_section_order() {
     $saved = get_theme_mod( 'vrt_theme_structure', '' );
     if ( ! $saved ) {
@@ -561,9 +581,9 @@ function vrt_get_section_order() {
     return is_array( $parsed ) ? $parsed : $default;
 }
 
-// ──────────────────────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // 12. SPA Catch-All Rewrite
-// ──────────────────────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function vrt_rewrite_rules() {
     // Let WordPress API and admin work normally
     // Route all other front-end requests to index.php for the SPA
@@ -583,9 +603,9 @@ function vrt_activate() {
 }
 add_action( 'after_switch_theme', 'vrt_activate' );
 
-// ──────────────────────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // 13. Allow REST API for comments without auth
-// ──────────────────────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function vrt_allow_anonymous_comments( $result ) {
     // Allow unauthenticated REST API access (needed for frontend to fetch posts/pages)
     // Comment posting is handled by WordPress core's own auth checks
@@ -593,9 +613,9 @@ function vrt_allow_anonymous_comments( $result ) {
 }
 add_filter( 'rest_authentication_errors', 'vrt_allow_anonymous_comments', 10, 1 );
 
-// ──────────────────────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // 14. Misc Helpers
-// ──────────────────────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function vrt_get_feature_count() {
     return intval( get_theme_mod( 'vrt_feature_count', 6 ) );
 }
@@ -622,3 +642,5 @@ function vrt_enqueue_google_font() {
     }
 }
 add_action( 'wp_enqueue_scripts', 'vrt_enqueue_google_font' );
+
+

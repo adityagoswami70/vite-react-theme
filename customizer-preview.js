@@ -10,83 +10,78 @@
         return parseInt(hex.slice(1, 3), 16) + ',' + parseInt(hex.slice(3, 5), 16) + ',' + parseInt(hex.slice(5, 7), 16);
     }
 
-    // Colors
-    api('vrt_color_primary', function (v) {
-        v.bind(function (c) {
-            setCSSVar('--color-primary', c);
-            var rgb = hexToRgb(c);
-            setCSSVar('--color-primary-glow', 'rgba(' + rgb + ', 0.15)');
-            setCSSVar('--color-primary-light', c + '10');
+    /**
+     * Bind all settings to the live update event.
+     * We use a helper function to ensure we don't duplicate listeners.
+     */
+    function bindSetting(setting) {
+        // Initial log
+        console.log('[VRT Live] Potential setting discovered:', setting.id);
+
+        setting.bind(function (newVal) {
+            console.log('[VRT Live] Dispatching update:', setting.id, newVal);
+            window.dispatchEvent(new CustomEvent('vrt_live_update', {
+                detail: { id: setting.id, value: newVal }
+            }));
         });
-    });
-    api('vrt_color_primary_hover', function (v) { v.bind(function (c) { setCSSVar('--color-primary-hover', c); }); });
-    api('vrt_color_bg', function (v) { v.bind(function (c) { setCSSVar('--color-bg', c); document.body.style.background = c; }); });
-    api('vrt_color_bg_alt', function (v) { v.bind(function (c) { setCSSVar('--color-bg-alt', c); }); });
-    api('vrt_color_surface', function (v) { v.bind(function (c) { setCSSVar('--color-surface', c); }); });
-    api('vrt_color_text', function (v) { v.bind(function (c) { setCSSVar('--color-text', c); }); });
-    api('vrt_color_text_secondary', function (v) { v.bind(function (c) { setCSSVar('--color-text-secondary', c); }); });
-    api('vrt_color_border', function (v) { v.bind(function (c) { setCSSVar('--color-border', c); }); });
-
-    // Font size
-    api('vrt_font_size', function (v) { v.bind(function (s) { document.documentElement.style.fontSize = s + 'px'; }); });
-
-    // Hero
-    api('vrt_hero_badge', function (v) { v.bind(function (t) { $('.hero-badge').text(t); }); });
-    api('vrt_hero_title', function (v) { v.bind(function (t) { $('.hero-title').html('<span class="hero-title-gradient">' + t + '</span>'); }); });
-    api('vrt_hero_subtitle', function (v) { v.bind(function (t) { $('.hero-subtitle').text(t); }); });
-    api('vrt_hero_btn1_text', function (v) { v.bind(function (t) { $('#hero-btn-primary').text(t); }); });
-    api('vrt_hero_btn1_url', function (v) { v.bind(function (u) { $('#hero-btn-primary').attr('href', u); }); });
-    api('vrt_hero_btn2_text', function (v) { v.bind(function (t) { $('#hero-btn-secondary').text(t); }); });
-    api('vrt_hero_btn2_url', function (v) { v.bind(function (u) { $('#hero-btn-secondary').attr('href', u); }); });
-    api('vrt_hero_bg_image', function (v) { v.bind(function (url) { 
-        if (url) {
-            $('.hero').css({ 'background-image': 'url(' + url + ')', 'background-size': 'cover', 'background-position': 'center' });
-        } else {
-            $('.hero').css({ 'background-image': 'none' });
-        }
-    }); });
-
-    // Features
-    api('vrt_features_label', function (v) { v.bind(function (t) { $('#features .section-label').text(t); }); });
-    api('vrt_features_title', function (v) { v.bind(function (t) { $('#features .section-title').text(t); }); });
-    api('vrt_features_subtitle', function (v) { v.bind(function (t) { $('#features .section-subtitle').text(t); }); });
-
-    for (var i = 1; i <= 12; i++) {
-        (function (idx) {
-            api('vrt_feature_' + idx + '_icon', function (v) { v.bind(function (t) { $('.feature-card[data-card="' + idx + '"] .feature-icon').text(t); }); });
-            api('vrt_feature_' + idx + '_title', function (v) { v.bind(function (t) { $('.feature-card[data-card="' + idx + '"] h3').text(t); }); });
-            api('vrt_feature_' + idx + '_desc', function (v) { v.bind(function (t) { $('.feature-card[data-card="' + idx + '"] p').text(t); }); });
-        })(i);
     }
 
-    // CTA
-    api('vrt_cta_title', function (v) { v.bind(function (t) { $('#cta .section-title').text(t); }); });
-    api('vrt_cta_subtitle', function (v) { v.bind(function (t) { $('#cta .section-subtitle').text(t); }); });
-    api('vrt_cta_btn_text', function (v) { v.bind(function (t) { $('#cta .btn-primary').text(t); }); });
-    api('vrt_cta_btn_url', function (v) { v.bind(function (u) { $('#cta .btn-primary').attr('href', u); }); });
+    // Wrap in wp.customize.ready to ensure all settings are fully initialized by WP
+    api.ready(function() {
+        console.log('[VRT Live] WordPress Customize Ready. Binding settings...');
+        
+        // Bind to all current settings
+        api.each(bindSetting);
 
-    // Blog
-    api('vrt_posts_label', function (v) { v.bind(function (t) { $('#latest-posts .section-label').text(t); }); });
-    api('vrt_posts_title', function (v) { v.bind(function (t) { $('#latest-posts .section-title').text(t); }); });
+        // Bind to any settings added after this script runs
+        api.bind('add', bindSetting);
 
-    // Footer
-    api('vrt_footer_col1_title', function (v) { v.bind(function (t) { $('.footer-col[data-col="1"] h4').text(t); }); });
-    api('vrt_footer_col2_title', function (v) { v.bind(function (t) { $('.footer-col[data-col="2"] h4').text(t); }); });
-    api('vrt_footer_col3_title', function (v) { v.bind(function (t) { $('.footer-col[data-col="3"] h4').text(t); }); });
-    api('vrt_footer_copyright', function (v) { v.bind(function (t) { if (t) $('.footer-copyright').text(t); }); });
+        // Handle Custom Logo specifically to send the URL instead of just the ID
+        api('custom_logo', function (v) {
+            v.bind(function (id) {
+                var url = '';
+                if (id) {
+                    var attachment = api.instance('custom_logo').attachment;
+                    if (attachment) {
+                        url = attachment.url;
+                    } else {
+                        // Fallback: try to get it from the control's params if available
+                        var control = api.control('custom_logo');
+                        if (control && control.params && control.params.attachment) {
+                             url = control.params.attachment.url;
+                        }
+                    }
+                }
+                console.log('[VRT Live] Dispatching logo URL:', url);
+                window.dispatchEvent(new CustomEvent('vrt_live_update', {
+                    detail: { id: 'custom_logo', value: url }
+                }));
+            });
+        });
+    });
 
-    // Site Structure (Live Preview for React)
+    // Special handling for legacy structure update (already exists, but we'll unify)
     api('vrt_theme_structure', function (v) {
         v.bind(function (newval) {
             if (newval) {
                 try {
                     var parsed = JSON.parse(newval);
                     window.dispatchEvent(new CustomEvent('vrt_structure_update', { detail: parsed }));
-                } catch (e) {
-                    // Ignore JSON parsing errors
-                }
+                } catch (e) { }
             }
         });
     });
+
+    // We can keep specific real-time CSS variable updates for colors/fonts 
+    // to ensure there's NO jank while React re-renders.
+    api('vrt_color_primary', function (v) {
+        v.bind(function (c) {
+            setCSSVar('--color-primary', c);
+            var rgb = hexToRgb(c);
+            setCSSVar('--color-primary-glow', 'rgba(' + rgb + ', 0.15)');
+        });
+    });
+    api('vrt_font_size', function (v) { v.bind(function (s) { document.documentElement.style.fontSize = s + 'px'; }); });
+
 
 })(jQuery);

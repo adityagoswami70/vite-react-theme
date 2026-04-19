@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useTheme } from '../context/ThemeContext';
@@ -20,12 +20,14 @@ export default function Navbar() {
     setMobileOpen(false);
   }, [location]);
 
-  const navLinks = menus.primary?.length > 0 ? menus.primary : [
-    { title: 'Home', url: '/' },
-    { title: 'Blog', url: '/blog' },
-    { title: 'About', url: '/about' },
-    { title: 'Contact', url: '/contact' },
-  ];
+  const navLinks = menus.primary?.length > 0 ? menus.primary : (
+    navbar.links?.length > 0 ? navbar.links : [
+      { title: 'Home', url: '/' },
+      { title: 'Blog', url: '/blog' },
+      { title: 'About', url: '/about' },
+      { title: 'Contact', url: '/contact' },
+    ]
+  );
 
   const isActive = (url) => {
     if (url === '/') return location.pathname === '/';
@@ -71,7 +73,7 @@ export default function Navbar() {
                   onClick={handleSearchClick}
                   aria-label="Search"
                 >
-                  🔍
+                  ðŸ”
                 </button>
               )}
               <button
@@ -79,7 +81,7 @@ export default function Navbar() {
                 onClick={() => setMobileOpen(true)}
                 aria-label="Toggle navigation"
               >
-                ☰
+                â˜°
               </button>
             </div>
           </div>
@@ -100,7 +102,7 @@ export default function Navbar() {
               onClick={() => setMobileOpen(false)}
               aria-label="Close menu"
             >
-              ✕
+              âœ•
             </button>
             {navLinks.map((link, i) => (
               <motion.div
@@ -118,3 +120,4 @@ export default function Navbar() {
     </>
   );
 }
+

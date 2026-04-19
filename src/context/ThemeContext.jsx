@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 /**
- * ThemeContext — provides all WordPress customizer values 
+ * ThemeContext â€” provides all WordPress customizer values 
  * passed via wp_localize_script as window.VRT_DATA
  */
 const defaults = {
@@ -27,7 +27,7 @@ const defaults = {
   typography: { fontFamily: 'Inter', fontSize: 16 },
   hero: {
     show: true,
-    badge: '✨ Welcome to the future',
+    badge: 'âœ¨ Welcome to the future',
     title: 'Build Something Amazing',
     subtitle: 'A modern WordPress theme with clean design, powerful customization, and stunning animations.',
     btn1Text: 'Get Started',
@@ -43,12 +43,12 @@ const defaults = {
     subtitle: 'Everything you need to build modern, high-performance websites.',
     count: 6,
     items: [
-      { icon: '⚡', title: 'Lightning Fast', desc: 'Vite-powered builds with instant hot module replacement.' },
-      { icon: '🎨', title: 'Beautiful Design', desc: 'Clean, professional aesthetics with refined typography.' },
-      { icon: '📱', title: 'Fully Responsive', desc: 'Looks perfect on every device — mobile, tablet, desktop.' },
-      { icon: '🔒', title: 'Secure & Reliable', desc: 'Built with WordPress best practices for security.' },
-      { icon: '🚀', title: 'SEO Optimized', desc: 'Semantic HTML and fast load times for higher ranking.' },
-      { icon: '🎯', title: 'Customizable', desc: 'Change everything from the WordPress Customizer.' },
+      { icon: 'âš¡', title: 'Lightning Fast', desc: 'Vite-powered builds with instant hot module replacement.' },
+      { icon: 'ðŸŽ¨', title: 'Beautiful Design', desc: 'Clean, professional aesthetics with refined typography.' },
+      { icon: 'ðŸ“±', title: 'Fully Responsive', desc: 'Looks perfect on every device â€” mobile, tablet, desktop.' },
+      { icon: 'ðŸ”’', title: 'Secure & Reliable', desc: 'Built with WordPress best practices for security.' },
+      { icon: 'ðŸš€', title: 'SEO Optimized', desc: 'Semantic HTML and fast load times for higher ranking.' },
+      { icon: 'ðŸŽ¯', title: 'Customizable', desc: 'Change everything from the WordPress Customizer.' },
     ],
   },
   testimonials: {
@@ -65,10 +65,10 @@ const defaults = {
   stats: {
     show: true,
     items: [
-      { icon: '🚀', number: '10K+', label: 'Active Users' },
-      { icon: '⭐', number: '4.9', label: 'Average Rating' },
-      { icon: '🌍', number: '50+', label: 'Countries' },
-      { icon: '💬', number: '1M+', label: 'Posts Created' },
+      { icon: 'ðŸš€', number: '10K+', label: 'Active Users' },
+      { icon: 'â­', number: '4.9', label: 'Average Rating' },
+      { icon: 'ðŸŒ', number: '50+', label: 'Countries' },
+      { icon: 'ðŸ’¬', number: '1M+', label: 'Posts Created' },
     ],
   },
   cta: {
@@ -139,6 +139,21 @@ const defaults = {
     message: 'The page you\'re looking for doesn\'t exist or has been moved.',
     showSearch: true,
   },
+  about: {
+    hero: { title: 'About Us', subtitle: '' },
+    story: ['', '', ''],
+    teamLabel: 'Our Team',
+    teamTitle: 'Meet the Makers',
+    team: [],
+    timelineLabel: 'Our Journey',
+    timelineTitle: 'Milestones',
+    timeline: [],
+  },
+  contact: {
+    hero: { title: 'Get in Touch', subtitle: '' },
+    info: [],
+    formTitle: 'Send us a message',
+  },
   sectionOrder: [
     { id: 'hero', enabled: true },
     { id: 'features', enabled: true },
@@ -170,7 +185,8 @@ export function ThemeProvider({ children }) {
   const initialValue = mergeDeep(defaults, wpData);
 
   const [themeState, setThemeState] = useState(() => {
-    // Only persist/restore local session state if we are inside the WP Customizer Preview
+    // Customizer previews can block storage access in some environments.
+    // Fall back to localized WordPress data so the preview never blanks out.
     const isCustomizer = typeof window !== 'undefined' && window.wp && window.wp.customize;
     if (isCustomizer) {
       try {
@@ -185,11 +201,16 @@ export function ThemeProvider({ children }) {
     return initialValue;
   });
 
-  // Keep sessionStorage in sync while in the customizer
   useEffect(() => {
     const isCustomizer = typeof window !== 'undefined' && window.wp && window.wp.customize;
-    if (isCustomizer) {
-       sessionStorage.setItem('vrt_theme_preview_state', JSON.stringify(themeState));
+    if (!isCustomizer) {
+      return;
+    }
+
+    try {
+      sessionStorage.setItem('vrt_theme_preview_state', JSON.stringify(themeState));
+    } catch (e) {
+      console.warn('Could not persist customizer state to session', e);
     }
   }, [themeState]);
 
@@ -201,9 +222,179 @@ export function ThemeProvider({ children }) {
         sectionOrder: e.detail,
       }));
     };
+
+    const handleLiveUpdate = (e) => {
+      const { id, value } = e.detail;
+      console.log('[VRT React] Received live update for:', id, value);
+      
+      setThemeState((prevState) => {
+        const newState = { ...prevState };
+
+        // 1. Core WP Settings (blogname, blogdescription, custom_logo)
+        if (id === 'blogname') {
+          newState.siteInfo = { ...newState.siteInfo, name: value };
+          return newState;
+        }
+        if (id === 'blogdescription') {
+          newState.siteInfo = { ...newState.siteInfo, description: value };
+          return newState;
+        }
+        if (id === 'custom_logo') {
+          newState.siteInfo = { ...newState.siteInfo, logoUrl: value };
+          return newState;
+        }
+
+        // 2. Specialty Page Mappings (Blog, About, Contact)
+        
+        // Blog Settings
+        if (id.startsWith('vrt_blog_')) {
+          if (id.startsWith('vrt_blog_card_')) {
+            const subKey = id.replace('vrt_blog_card_', '').replace(/_([a-z])/g, (g) => g[1].toUpperCase());
+            const cardVal = (subKey.startsWith('show') && typeof value === 'string') ? value === '1' || value === 'true' : value;
+            newState.blog = { 
+              ...newState.blog, 
+              card: { ...newState.blog.card, [subKey]: cardVal } 
+            };
+          } else {
+            const subKey = id.replace('vrt_blog_', '').replace(/_([a-z])/g, (g) => g[1].toUpperCase());
+            const finalVal = (subKey.endsWith('Show') && typeof value === 'string') ? value === '1' || value === 'true' : value;
+            newState.blog = { ...newState.blog, [subKey]: finalVal };
+          }
+          return newState;
+        }
+
+        // About Settings
+        if (id.startsWith('vrt_about_')) {
+          if (id.startsWith('vrt_about_hero_')) {
+            const subKey = id.replace('vrt_about_hero_', '').replace(/_([a-z])/g, (g) => g[1].toUpperCase());
+            newState.about = { 
+              ...newState.about, 
+              hero: { ...newState.about.hero, [subKey]: value } 
+            };
+          } else if (id.startsWith('vrt_about_story')) {
+            const storyIdx = parseInt(id.replace('vrt_about_story', '')) - 1;
+            if (!isNaN(storyIdx)) {
+              const story = [...newState.about.story];
+              story[storyIdx] = value;
+              newState.about = { ...newState.about, story };
+            }
+          } else {
+            const subKey = id.replace('vrt_about_', '').replace(/_([a-z])/g, (g) => g[1].toUpperCase());
+            newState.about = { ...newState.about, [subKey]: value };
+          }
+          return newState;
+        }
+
+        // Contact Settings
+        if (id.startsWith('vrt_contact_')) {
+          if (id.startsWith('vrt_contact_hero_')) {
+            const subKey = id.replace('vrt_contact_hero_', '').replace(/_([a-z])/g, (g) => g[1].toUpperCase());
+            newState.contact = { 
+              ...newState.contact, 
+              hero: { ...newState.contact.hero, [subKey]: value } 
+            };
+          } else {
+            const subKey = id.replace('vrt_contact_', '').replace(/_([a-z])/g, (g) => g[1].toUpperCase());
+            newState.contact = { ...newState.contact, [subKey]: value };
+          }
+          return newState;
+        }
+
+        // 3. Simple mappings (Theme Options)
+        const prefixMap = {
+          vrt_hero_: 'hero',
+          vrt_features_: 'features',
+          vrt_testimonials_: 'testimonials',
+          vrt_stats_: 'stats',
+          vrt_cta_: 'cta',
+          vrt_posts_: 'posts',
+          vrt_social_: 'social',
+          vrt_footer_: 'footer',
+          vrt_navbar_: 'navbar',
+          vrt_layout_: 'layout',
+          vrt_animations_: 'animations',
+          vrt_404_: 'notFound',
+        };
+
+        for (const [prefix, key] of Object.entries(prefixMap)) {
+          if (id.startsWith(prefix)) {
+            const subKey = id.replace(prefix, '').replace(/_([a-z])/g, (g) => g[1].toUpperCase());
+            if (newState[key]) {
+              const finalVal = (subKey === 'show' && typeof value === 'string') ? value === '1' || value === 'true' : value;
+              newState[key] = { ...newState[key], [subKey]: finalVal };
+              return newState;
+            }
+          }
+        }
+
+        // 4. Colors
+        if (id.startsWith('vrt_color_')) {
+          const colorKey = id.replace('vrt_color_', '').replace(/_([a-z])/g, (g) => g[1].toUpperCase());
+          newState.colors = { ...newState.colors, [colorKey]: value };
+          return newState;
+        }
+
+        // 5. Numbered items
+        const numberedRegex = /^vrt_(feature|testimonial|stat|team|timeline|contact)_(\d+)_(.*)$/;
+        const match = id.match(numberedRegex);
+        if (match) {
+          const [, type, index, field] = match;
+          const idx = parseInt(index) - 1;
+          const sectionKey = {
+            feature: 'features',
+            testimonial: 'testimonials',
+            stat: 'stats',
+            team: 'about', 
+            timeline: 'about',
+            contact: 'contact'
+          }[type];
+
+          if (sectionKey === 'about') {
+            const subKey = type === 'team' ? 'team' : 'timeline';
+            const items = [...newState.about[subKey]];
+            if (items[idx]) {
+              items[idx] = { ...items[idx], [field]: value };
+              newState.about = { ...newState.about, [subKey]: items };
+            }
+            return newState;
+          }
+
+          if (sectionKey === 'contact' && field === 'icon' || field === 'label' || field === 'value') {
+            const items = [...newState.contact.info];
+            if (items[idx]) {
+              items[idx] = { ...items[idx], [field]: value };
+              newState.contact = { ...newState.contact, info: items };
+            }
+            return newState;
+          }
+
+          if (newState[sectionKey] && newState[sectionKey].items) {
+            const items = [...newState[sectionKey].items];
+            if (items[idx]) {
+              items[idx] = { ...items[idx], [field]: value };
+              newState[sectionKey] = { ...newState[sectionKey], items };
+            }
+            return newState;
+          }
+        }
+
+        // 6. Global special cases
+        if (id === 'vrt_font_family') newState.typography = { ...newState.typography, fontFamily: value };
+        if (id === 'vrt_font_size') newState.typography = { ...newState.typography, fontSize: parseInt(value) };
+        if (id === 'vrt_feature_count') newState.features = { ...newState.features, count: parseInt(value) };
+
+        return newState;
+      });
+    };
+
     window.addEventListener('vrt_structure_update', handleStructureUpdate);
-    return () => window.removeEventListener('vrt_structure_update', handleStructureUpdate);
+    window.addEventListener('vrt_live_update', handleLiveUpdate);
+    return () => {
+      window.removeEventListener('vrt_structure_update', handleStructureUpdate);
+      window.removeEventListener('vrt_live_update', handleLiveUpdate);
+    };
   }, []);
+
 
   return (
     <ThemeContext.Provider value={themeState}>
@@ -217,3 +408,4 @@ export function useTheme() {
 }
 
 export default ThemeContext;
+
