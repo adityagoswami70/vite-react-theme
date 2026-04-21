@@ -200,3 +200,191 @@ if (rootEl) {
     </React.StrictMode>
   );
 }
+
+// ══════════════════════════════════════════════════════════════════════════════════
+// Navbar Manager
+// ══════════════════════════════════════════════════════════════════════════════════
+
+const AVAILABLE_PAGES = (typeof window !== 'undefined' && window.VRT_AVAILABLE_PAGES) ? window.VRT_AVAILABLE_PAGES : [
+  { title: 'Home', url: '/' },
+  { title: 'Blog', url: '/blog' },
+  { title: 'About', url: '/about' },
+  { title: 'Contact', url: '/contact' },
+];
+
+function NavbarManager({ initialValue, inputElement }) {
+  const [links, setLinks] = useState(() => {
+    let resolvedValue = initialValue;
+    if (typeof window !== 'undefined' && window.wp && window.wp.customize) {
+      try {
+        const dirtyVal = window.wp.customize('vrt_theme_navbar_links').get();
+        if (dirtyVal) resolvedValue = dirtyVal;
+      } catch (e) {}
+    }
+    if (resolvedValue) {
+      try {
+        return JSON.parse(resolvedValue);
+      } catch (e) {}
+    }
+    return [
+      { title: 'Home', url: '/' }
+    ];
+  });
+
+  const [selectedPage, setSelectedPage] = useState('');
+  const [customTitle, setCustomTitle] = useState('');
+  const [customUrl, setCustomUrl] = useState('');
+  const [mode, setMode] = useState('page'); // 'page' or 'custom'
+
+  useEffect(() => {
+    if (inputElement) {
+      inputElement.value = JSON.stringify(links);
+      const event = new Event('change', { bubbles: true });
+      inputElement.dispatchEvent(event);
+    }
+  }, [links, inputElement]);
+
+  const addLink = () => {
+    if (mode === 'page') {
+      if (!selectedPage) return;
+      const pageObj = AVAILABLE_PAGES.find(p => p.url === selectedPage);
+      if (pageObj) {
+        setLinks([...links, { title: pageObj.title, url: pageObj.url }]);
+        setSelectedPage('');
+      }
+    } else {
+      if (!customTitle || !customUrl) return;
+      let finalUrl = customUrl;
+      // Add simple validation (add https:// if not an absolute or relative protocol/slash)
+      if (!finalUrl.match(/^(https?:\/\/|\/|#|mailto:|tel:)/)) {
+        finalUrl = 'https://' + finalUrl;
+      }
+      setLinks([...links, { title: customTitle, url: finalUrl }]);
+      setCustomTitle('');
+      setCustomUrl('');
+    }
+  };
+
+  const removeLink = (index) => {
+    const newLinks = [...links];
+    newLinks.splice(index, 1);
+    setLinks(newLinks);
+  };
+
+  const moveUp = (index) => {
+    if (index === 0) return;
+    const newLinks = [...links];
+    [newLinks[index - 1], newLinks[index]] = [newLinks[index], newLinks[index - 1]];
+    setLinks(newLinks);
+  };
+
+  const moveDown = (index) => {
+    if (index === links.length - 1) return;
+    const newLinks = [...links];
+    [newLinks[index + 1], newLinks[index]] = [newLinks[index], newLinks[index + 1]];
+    setLinks(newLinks);
+  };
+
+  return (
+    <div style={styles.container}>
+      <p style={styles.desc}>Manage your sitewide navigation links here.</p>
+      
+      <div style={styles.list}>
+        {links.map((link, index) => (
+          <div key={index} style={styles.item}>
+            <div style={styles.controls}>
+              <button type="button" onClick={() => moveUp(index)} disabled={index === 0} style={{...styles.btn, opacity: index === 0 ? 0.3 : 1}}>▲</button>
+              <button type="button" onClick={() => moveDown(index)} disabled={index === links.length - 1} style={{...styles.btn, opacity: index === links.length - 1 ? 0.3 : 1}}>▼</button>
+            </div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: '13px', fontWeight: '500', color: '#1e293b' }}>{link.title}</div>
+              <div style={{ fontSize: '11px', color: '#64748b' }}>{link.url}</div>
+            </div>
+            <button type="button" onClick={() => removeLink(index)} style={{...styles.toggleBtn, backgroundColor: '#ef4444', color: '#fff'}}>🗑️</button>
+          </div>
+        ))}
+      </div>
+
+      <div style={{ marginTop: '15px', backgroundColor: '#f8fafc', padding: '10px', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+        <div style={{ marginBottom: '10px', display: 'flex', gap: '8px' }}>
+          <button 
+            type="button" 
+            onClick={() => setMode('page')}
+            style={{ flex: 1, padding: '4px', fontSize: '11px', fontWeight: mode === 'page' ? 'bold' : 'normal', backgroundColor: mode === 'page' ? '#e2e8f0' : 'transparent', border: 'none', borderRadius: '4px', cursor: 'pointer', color: '#1e293b' }}
+          >
+            Select Page
+          </button>
+          <button 
+            type="button" 
+            onClick={() => setMode('custom')}
+            style={{ flex: 1, padding: '4px', fontSize: '11px', fontWeight: mode === 'custom' ? 'bold' : 'normal', backgroundColor: mode === 'custom' ? '#e2e8f0' : 'transparent', border: 'none', borderRadius: '4px', cursor: 'pointer', color: '#1e293b' }}
+          >
+            Custom Link
+          </button>
+        </div>
+
+        {mode === 'page' ? (
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <select 
+              value={selectedPage} 
+              onChange={(e) => setSelectedPage(e.target.value)}
+              style={{ flex: 1, padding: '6px', borderRadius: '4px', border: '1px solid #cbd5e1', fontSize: '12px' }}
+            >
+              <option value="">-- Select a Page --</option>
+              {AVAILABLE_PAGES.map(p => (
+                <option key={p.url} value={p.url}>{p.title} ({p.url})</option>
+              ))}
+            </select>
+            <button 
+              type="button" 
+              onClick={addLink}
+              disabled={!selectedPage}
+              style={{ padding: '6px 12px', borderRadius: '4px', border: 'none', backgroundColor: !selectedPage ? '#cbd5e1' : '#10b981', color: '#fff', cursor: !selectedPage ? 'not-allowed' : 'pointer', fontSize: '12px', fontWeight: 'bold' }}
+            >
+              Add
+            </button>
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <input 
+              type="text" 
+              placeholder="Link Title (e.g., Google)" 
+              value={customTitle}
+              onChange={(e) => setCustomTitle(e.target.value)}
+              style={{ padding: '6px', borderRadius: '4px', border: '1px solid #cbd5e1', fontSize: '12px' }}
+            />
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <input 
+                type="text" 
+                placeholder="URL (e.g., https://google.com)" 
+                value={customUrl}
+                onChange={(e) => setCustomUrl(e.target.value)}
+                style={{ flex: 1, padding: '6px', borderRadius: '4px', border: '1px solid #cbd5e1', fontSize: '12px' }}
+              />
+              <button 
+                type="button" 
+                onClick={addLink}
+                disabled={!customTitle || !customUrl}
+                style={{ padding: '6px 12px', borderRadius: '4px', border: 'none', backgroundColor: (!customTitle || !customUrl) ? '#cbd5e1' : '#10b981', color: '#fff', cursor: (!customTitle || !customUrl) ? 'not-allowed' : 'pointer', fontSize: '12px', fontWeight: 'bold' }}
+              >
+                Add
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+const navRootEl = document.getElementById('vrt-customizer-navbar-root');
+if (navRootEl) {
+  const initialData = navRootEl.getAttribute('data-value');
+  const hiddenInput = document.getElementById('vrt_navbar_links_input');
+  
+  ReactDOM.createRoot(navRootEl).render(
+    <React.StrictMode>
+      <NavbarManager initialValue={initialData} inputElement={hiddenInput} />
+    </React.StrictMode>
+  );
+}

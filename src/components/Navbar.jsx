@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useTheme } from '../context/ThemeContext';
@@ -20,14 +20,19 @@ export default function Navbar() {
     setMobileOpen(false);
   }, [location]);
 
-  const navLinks = menus.primary?.length > 0 ? menus.primary : (
+  const baseLinks = menus.primary?.length > 0 ? menus.primary : (
     navbar.links?.length > 0 ? navbar.links : [
-      { title: 'Home', url: '/' },
-      { title: 'Blog', url: '/blog' },
-      { title: 'About', url: '/about' },
-      { title: 'Contact', url: '/contact' },
+      { title: 'Home', url: '/' }
     ]
   );
+
+  // If menus.primary exists, we still want to ensure that "Show in Navbar" pages 
+  // (which are in navbar.links) are appended if they aren't already in the menu.
+  const extraLinks = (menus.primary?.length > 0 && navbar.links?.length > 0)
+    ? navbar.links.filter(link => !baseLinks.some(bl => bl.url === link.url))
+    : [];
+
+  const navLinks = [...baseLinks, ...extraLinks];
 
   const isActive = (url) => {
     if (url === '/') return location.pathname === '/';
@@ -47,11 +52,11 @@ export default function Navbar() {
               {siteInfo.logoUrl && (
                 <img 
                   src={siteInfo.logoUrl} 
-                  alt={siteInfo.name} 
+                  alt="Flow" 
                   style={{ height: `${navbar.logoHeight}px` }}
                 />
               )}
-              {siteInfo.name}
+              Flow
             </Link>
 
             <nav className="navbar-links" aria-label="Primary navigation">

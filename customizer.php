@@ -33,7 +33,20 @@ if ( class_exists( 'WP_Customize_Control' ) ) {
             <input type="hidden" id="vrt_structure_input" <?php $this->link(); ?> value="<?php echo esc_attr( $this->value() ); ?>" />
         <?php }
     }
+
+    class VRT_React_Navbar_Control extends WP_Customize_Control {
+        public $type = 'vrt-react-navbar';
+        public function render_content() { ?>
+            <label>
+                <?php if ( $this->label ) : ?><span class="customize-control-title"><?php echo esc_html( $this->label ); ?></span><?php endif; ?>
+                <?php if ( $this->description ) : ?><span class="description customize-control-description"><?php echo esc_html( $this->description ); ?></span><?php endif; ?>
+            </label>
+            <div id="vrt-customizer-navbar-root" data-value="<?php echo esc_attr( $this->value() ); ?>"></div>
+            <input type="hidden" id="vrt_navbar_links_input" <?php $this->link(); ?> value="<?php echo esc_attr( $this->value() ); ?>" />
+        <?php }
+    }
 }
+
 
 function vrt_customize_register( $wp_customize ) {
 
@@ -134,6 +147,16 @@ function vrt_customize_register( $wp_customize ) {
 
     $wp_customize->add_setting( 'vrt_navbar_sticky', array( 'default' => true, 'sanitize_callback' => 'vrt_sanitize_checkbox', 'transport' => 'postMessage' ) );
     $wp_customize->add_control( 'vrt_navbar_sticky', array( 'label' => __( 'Sticky Navbar', 'vite-react-theme' ), 'section' => 'vrt_navbar', 'type' => 'checkbox' ) );
+
+    $wp_customize->add_setting( 'vrt_theme_navbar_links', array(
+        'default' => '', 'sanitize_callback' => 'vrt_sanitize_json', 'transport' => 'postMessage',
+    ) );
+    $wp_customize->add_control( new VRT_React_Navbar_Control( $wp_customize, 'vrt_theme_navbar_links', array(
+        'label' => __( 'Manage Navbar Links', 'vite-react-theme' ), 
+        'description' => __( 'Add, remove, and reorder pages in your navigation bar.', 'vite-react-theme' ),
+        'section' => 'vrt_navbar',
+    ) ) );
+
 
     // ══════════════════════════════════════════════════════════════════════════
     // SECTION: Hero
@@ -406,6 +429,9 @@ function vrt_customize_register( $wp_customize ) {
         'title' => __( 'About Page', 'vite-react-theme' ), 'panel' => 'vrt_panel', 'priority' => 62,
     ) );
 
+    $wp_customize->add_setting( 'vrt_about_show', array( 'default' => false, 'sanitize_callback' => 'vrt_sanitize_checkbox', 'transport' => 'postMessage' ) );
+    $wp_customize->add_control( 'vrt_about_show', array( 'label' => __( 'Show in Navbar', 'vite-react-theme' ), 'section' => 'vrt_about', 'type' => 'checkbox' ) );
+
     // About Hero
     $wp_customize->add_setting( 'vrt_about_hero_title', array( 'default' => 'About Us', 'sanitize_callback' => 'sanitize_text_field', 'transport' => 'postMessage' ) );
     $wp_customize->add_control( 'vrt_about_hero_title', array( 'label' => __( 'Hero Title', 'vite-react-theme' ), 'section' => 'vrt_about', 'type' => 'text' ) );
@@ -483,6 +509,9 @@ function vrt_customize_register( $wp_customize ) {
     $wp_customize->add_setting( 'vrt_blog_sidebar_show', array( 'default' => true, 'sanitize_callback' => 'vrt_sanitize_checkbox', 'transport' => 'postMessage' ) );
     $wp_customize->add_control( 'vrt_blog_sidebar_show', array( 'label' => __( 'Show Sidebar', 'vite-react-theme' ), 'section' => 'vrt_blog_page', 'type' => 'checkbox' ) );
 
+    $wp_customize->add_setting( 'vrt_blog_show', array( 'default' => false, 'sanitize_callback' => 'vrt_sanitize_checkbox', 'transport' => 'postMessage' ) );
+    $wp_customize->add_control( 'vrt_blog_show', array( 'label' => __( 'Show in Navbar', 'vite-react-theme' ), 'section' => 'vrt_blog_page', 'type' => 'checkbox' ) );
+
     $wp_customize->add_setting( 'vrt_blog_per_page', array( 'default' => 9, 'sanitize_callback' => 'absint', 'transport' => 'postMessage' ) );
     $wp_customize->add_control( new VRT_Number_Control( $wp_customize, 'vrt_blog_per_page', array(
         'label' => __( 'Posts Per Page', 'vite-react-theme' ), 'section' => 'vrt_blog_page', 'min' => 3, 'max' => 24,
@@ -515,6 +544,9 @@ function vrt_customize_register( $wp_customize ) {
     $wp_customize->add_section( 'vrt_contact', array(
         'title' => __( 'Contact Page', 'vite-react-theme' ), 'panel' => 'vrt_panel', 'priority' => 63,
     ) );
+
+    $wp_customize->add_setting( 'vrt_contact_show', array( 'default' => false, 'sanitize_callback' => 'vrt_sanitize_checkbox', 'transport' => 'postMessage' ) );
+    $wp_customize->add_control( 'vrt_contact_show', array( 'label' => __( 'Show in Navbar', 'vite-react-theme' ), 'section' => 'vrt_contact', 'type' => 'checkbox' ) );
 
     // Contact Hero
     $wp_customize->add_setting( 'vrt_contact_hero_title', array( 'default' => 'Get in Touch', 'sanitize_callback' => 'sanitize_text_field', 'transport' => 'postMessage' ) );
@@ -556,6 +588,37 @@ function vrt_customize_register( $wp_customize ) {
     $wp_customize->add_control( 'vrt_404_message', array( 'label' => __( '404 Message', 'vite-react-theme' ), 'section' => 'vrt_404', 'type' => 'textarea' ) );
 
     // ══════════════════════════════════════════════════════════════════════════
+    // SECTION: Extra Pages (Services, Portfolio, etc.)
+    // ══════════════════════════════════════════════════════════════════════════
+    $extra_pages = array(
+        'services' => array('Services', 'Our Services', 'We provide a comprehensive suite of digital solutions designed to help your business thrive.'),
+        'portfolio' => array('Portfolio', 'Our Portfolio', 'Discover our latest projects and see how we\'ve helped businesses achieve their digital goals.'),
+        'pricing' => array('Pricing', 'Simple, Transparent Pricing', 'Choose the perfect plan for your business needs. No hidden fees or surprises.'),
+        'team' => array('Team', 'Meet Our Team', 'We are a diverse group of passionate builders, creators, and thinkers dedicated to making the web a better place.'),
+        'faq' => array('FAQ', 'Frequently Asked Questions', 'Everything you need to know about our product and billing.'),
+        'careers' => array('Careers', 'Join Our Team', 'Help us build the next generation of digital products. We offer competitive salaries, equity, and remote-first flexibility.'),
+        'testimonials' => array('Testimonials', 'Loved by Thousands', 'Don\'t just take our word for it. Here\'s what our incredible customers have to say.'),
+        'features' => array('Features', 'Powerful Features', 'Everything you need to scale your business, manage your team, and delight your customers, all in one platform.'),
+        'privacy' => array('Privacy Policy', 'Privacy Policy', 'Your privacy is important to us. Learn how we collect, use, and protect your data.'),
+        'terms' => array('Terms of Service', 'Terms of Service', 'Please read our terms of service carefully before using our website.'),
+    );
+
+    foreach ($extra_pages as $slug => $data) {
+        $wp_customize->add_section( "vrt_page_{$slug}", array(
+            'title' => __( $data[0] . ' Page', 'vite-react-theme' ), 'panel' => 'vrt_panel', 'priority' => 64,
+        ) );
+
+        $wp_customize->add_setting( "vrt_{$slug}_show", array( 'default' => false, 'sanitize_callback' => 'vrt_sanitize_checkbox', 'transport' => 'postMessage' ) );
+        $wp_customize->add_control( "vrt_{$slug}_show", array( 'label' => __( 'Show in Navbar', 'vite-react-theme' ), 'section' => "vrt_page_{$slug}", 'type' => 'checkbox' ) );
+
+        $wp_customize->add_setting( "vrt_{$slug}_title", array( 'default' => $data[1], 'sanitize_callback' => 'sanitize_text_field', 'transport' => 'postMessage' ) );
+        $wp_customize->add_control( "vrt_{$slug}_title", array( 'label' => __( 'Page Title', 'vite-react-theme' ), 'section' => "vrt_page_{$slug}", 'type' => 'text' ) );
+        $wp_customize->add_setting( "vrt_{$slug}_subtitle", array( 'default' => $data[2], 'sanitize_callback' => 'sanitize_textarea_field', 'transport' => 'postMessage' ) );
+        $wp_customize->add_control( "vrt_{$slug}_subtitle", array( 'label' => __( 'Page Subtitle', 'vite-react-theme' ), 'section' => "vrt_page_{$slug}", 'type' => 'textarea' ) );
+    }
+
+
+    // ══════════════════════════════════════════════════════════════════════════
     // CORE WP SETTINGS: Switch to postMessage
     // ══════════════════════════════════════════════════════════════════════════
     $core_settings = array( 'blogname', 'blogdescription', 'custom_logo' );
@@ -572,19 +635,75 @@ function vrt_sanitize_checkbox( $value ) {
     return ( isset( $value ) && true == $value ) ? true : false;
 }
 
-function vrt_sanitize_json( $value ) {
-    return is_string( $value ) ? $value : '';
-}
-
+/**
+ * Inject the Customizer-to-React bridge inline.
+ * This ensures the logic is always loaded in the preview iframe.
+ */
 function vrt_customize_preview_js() {
-    if ( is_customize_preview() ) {
-        wp_enqueue_script( 
-            'vrt-customizer-preview', 
-            get_template_directory_uri() . '/customizer-preview.js', 
-            array(), 
-            VRT_VERSION, 
-            true 
-        );
-    }
+    if ( ! is_customize_preview() ) return;
+    ?>
+    <script type="text/javascript">
+    (function() {
+        var checkLimit = 50; 
+        var checkCount = 0;
+
+        function initBridge() {
+            var api = window.wp && window.wp.customize;
+            if (!api) {
+                if (checkCount < checkLimit) {
+                    checkCount++;
+                    setTimeout(initBridge, 100);
+                }
+                return;
+            }
+
+            console.log('[VRT Bridge] Initialized and connected to WordPress Customizer.');
+
+            function bindSetting(setting) {
+                // Initial bind for value changes
+                setting.bind(function(newVal) {
+                    console.log('[VRT Bridge] Dispatching update:', setting.id, newVal);
+                    window.dispatchEvent(new CustomEvent('vrt_live_update', {
+                        detail: { id: setting.id, value: newVal }
+                    }));
+                });
+
+                // Specialized handling for Logo URL
+                if (setting.id === 'custom_logo') {
+                    setting.bind(function(id) {
+                        var url = '';
+                        if (id) {
+                            var attachment = api.instance('custom_logo').attachment;
+                            if (attachment) url = attachment.url;
+                        }
+                        window.dispatchEvent(new CustomEvent('vrt_live_update', {
+                            detail: { id: 'custom_logo', value: url }
+                        }));
+                    });
+                }
+            }
+
+            api.each(bindSetting);
+            api.bind('add', bindSetting);
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initBridge);
+        } else {
+            initBridge();
+        }
+    })();
+    </script>
+    <?php
 }
-add_action( 'wp_enqueue_scripts', 'vrt_customize_preview_js' );
+add_action( 'wp_footer', 'vrt_customize_preview_js', 99 );
+add_action( 'customize_preview_init', function() {
+    // Force postMessage for core settings
+    add_action( 'customize_register', function( $wp_customize ) {
+        $core = array( 'blogname', 'blogdescription', 'custom_logo' );
+        foreach ( $core as $id ) {
+            $setting = $wp_customize->get_setting( $id );
+            if ( $setting ) $setting->transport = 'postMessage';
+        }
+    }, 999 );
+} );

@@ -106,8 +106,28 @@ const defaults = {
     showSearch: true,
     sticky: true,
     logoHeight: 32,
+    links: [],
+    manualLinks: [],
+  },
+  about: {
+    show: false,
+    hero: { title: 'About Us', subtitle: '' },
+    story: ['', '', ''],
+    teamLabel: 'Our Team',
+    teamTitle: 'Meet the Makers',
+    team: [],
+    timelineLabel: 'Our Journey',
+    timelineTitle: 'Milestones',
+    timeline: [],
+  },
+  contact: {
+    show: false,
+    hero: { title: 'Get in Touch', subtitle: '' },
+    info: [],
+    formTitle: 'Send us a message',
   },
   blog: {
+    show: false,
     heroShow: true,
     heroTitle: 'Blog',
     heroSubtitle: 'Stories, tips, and insights from our team',
@@ -121,38 +141,6 @@ const defaults = {
       readMoreText: 'Read more',
       excerptLength: 25,
     },
-  },
-  layout: {
-    containerMax: 1200,
-    sidebarPosition: 'right',
-    blogColumns: 3,
-    cardRadius: 16,
-  },
-  animations: {
-    enabled: true,
-    style: 'fade-up',
-    speed: 'normal',
-    staggerDelay: 80,
-  },
-  notFound: {
-    title: 'Page Not Found',
-    message: 'The page you\'re looking for doesn\'t exist or has been moved.',
-    showSearch: true,
-  },
-  about: {
-    hero: { title: 'About Us', subtitle: '' },
-    story: ['', '', ''],
-    teamLabel: 'Our Team',
-    teamTitle: 'Meet the Makers',
-    team: [],
-    timelineLabel: 'Our Journey',
-    timelineTitle: 'Milestones',
-    timeline: [],
-  },
-  contact: {
-    hero: { title: 'Get in Touch', subtitle: '' },
-    info: [],
-    formTitle: 'Send us a message',
   },
   sectionOrder: [
     { id: 'hero', enabled: true },
@@ -214,6 +202,52 @@ export function ThemeProvider({ children }) {
     }
   }, [themeState]);
 
+  // Apply CSS Variables based on current themeState
+  useEffect(() => {
+    const root = document.documentElement;
+    const { colors, typography, layout } = themeState;
+
+    if (colors) {
+      root.style.setProperty('--color-primary', colors.primary);
+      root.style.setProperty('--color-primary-hover', colors.primaryHover);
+      root.style.setProperty('--color-bg', colors.bg);
+      root.style.setProperty('--color-bg-alt', colors.bgAlt);
+      root.style.setProperty('--color-surface', colors.surface);
+      root.style.setProperty('--color-text', colors.text);
+      root.style.setProperty('--color-text-secondary', colors.textSecondary);
+      root.style.setProperty('--color-border', colors.border);
+
+      // Helper function to extract RGB from hex for rgba() CSS vars
+      const hexToRgb = (hex) => {
+        let r = 99, g = 102, b = 241;
+        if (/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)) {
+          let c = hex.substring(1).split('');
+          if (c.length === 3) c = [c[0], c[0], c[1], c[1], c[2], c[2]];
+          c = parseInt('0x' + c.join(''), 16);
+          r = (c >> 16) & 255; g = (c >> 8) & 255; b = c & 255;
+        }
+        return `${r}, ${g}, ${b}`;
+      };
+
+      const primaryRgb = hexToRgb(colors.primary);
+      root.style.setProperty('--color-primary-rgb', primaryRgb);
+      root.style.setProperty('--color-primary-light', `rgba(${primaryRgb}, 0.1)`);
+      root.style.setProperty('--color-primary-glow', `rgba(${primaryRgb}, 0.25)`);
+    }
+
+    if (typography) {
+      const font = typography.fontFamily === 'system-ui'
+        ? 'system-ui, -apple-system, sans-serif'
+        : `"${typography.fontFamily}", system-ui, -apple-system, sans-serif`;
+      root.style.setProperty('--font-sans', font);
+      root.style.fontSize = `${typography.fontSize}px`;
+    }
+
+    if (layout && layout.containerMax) {
+      root.style.setProperty('--container-max', `${layout.containerMax}px`);
+    }
+  }, [themeState.colors, themeState.typography, themeState.layout]);
+
   // Listen to changes from WordPress customizer-preview.js
   useEffect(() => {
     const handleStructureUpdate = (e) => {
@@ -225,7 +259,7 @@ export function ThemeProvider({ children }) {
 
     const handleLiveUpdate = (e) => {
       const { id, value } = e.detail;
-      console.log('[VRT React] Received live update for:', id, value);
+      // console.log('[VRT React] Received live update for:', id, value);
       
       setThemeState((prevState) => {
         const newState = { ...prevState };
@@ -233,15 +267,33 @@ export function ThemeProvider({ children }) {
         // 1. Core WP Settings (blogname, blogdescription, custom_logo)
         if (id === 'blogname') {
           newState.siteInfo = { ...newState.siteInfo, name: value };
-          return newState;
         }
         if (id === 'blogdescription') {
           newState.siteInfo = { ...newState.siteInfo, description: value };
-          return newState;
         }
         if (id === 'custom_logo') {
           newState.siteInfo = { ...newState.siteInfo, logoUrl: value };
-          return newState;
+        }
+
+        // 1B. Navbar Links (JSON array)
+        if (id === 'vrt_theme_navbar_links') {
+          try {
+            const parsedLinks = typeof value === 'string' && value ? JSON.parse(value) : value;
+            const links = Array.isArray(parsedLinks) ? parsedLinks : [];
+            newState.navbar = { ...newState.navbar, manualLinks: links };
+          } catch(e) {}
+        }
+
+        // 1C. 10 Extra Pages
+        const pagesMap = ['services', 'portfolio', 'pricing', 'team', 'faq', 'careers', 'testimonials', 'features', 'privacy', 'terms'];
+        for (const slug of pagesMap) {
+          if (id.startsWith(`vrt_${slug}_`)) {
+             const subKey = id.replace(`vrt_${slug}_`, '');
+             newState.pages = { ...newState.pages };
+             if (!newState.pages[slug]) newState.pages[slug] = { title: '', subtitle: '' };
+             const finalVal = (subKey === 'show' && typeof value === 'string') ? value === '1' || value === 'true' : value;
+             newState.pages[slug] = { ...newState.pages[slug], [subKey]: finalVal };
+          }
         }
 
         // 2. Specialty Page Mappings (Blog, About, Contact)
@@ -257,10 +309,9 @@ export function ThemeProvider({ children }) {
             };
           } else {
             const subKey = id.replace('vrt_blog_', '').replace(/_([a-z])/g, (g) => g[1].toUpperCase());
-            const finalVal = (subKey.endsWith('Show') && typeof value === 'string') ? value === '1' || value === 'true' : value;
+            const finalVal = ((subKey.endsWith('Show') || subKey === 'show') && typeof value === 'string') ? value === '1' || value === 'true' : value;
             newState.blog = { ...newState.blog, [subKey]: finalVal };
           }
-          return newState;
         }
 
         // About Settings
@@ -280,9 +331,9 @@ export function ThemeProvider({ children }) {
             }
           } else {
             const subKey = id.replace('vrt_about_', '').replace(/_([a-z])/g, (g) => g[1].toUpperCase());
-            newState.about = { ...newState.about, [subKey]: value };
+            const finalVal = (subKey === 'show' && typeof value === 'string') ? value === '1' || value === 'true' : value;
+            newState.about = { ...newState.about, [subKey]: finalVal };
           }
-          return newState;
         }
 
         // Contact Settings
@@ -295,9 +346,9 @@ export function ThemeProvider({ children }) {
             };
           } else {
             const subKey = id.replace('vrt_contact_', '').replace(/_([a-z])/g, (g) => g[1].toUpperCase());
-            newState.contact = { ...newState.contact, [subKey]: value };
+            const finalVal = (subKey === 'show' && typeof value === 'string') ? value === '1' || value === 'true' : value;
+            newState.contact = { ...newState.contact, [subKey]: finalVal };
           }
-          return newState;
         }
 
         // 3. Simple mappings (Theme Options)
@@ -322,7 +373,6 @@ export function ThemeProvider({ children }) {
             if (newState[key]) {
               const finalVal = (subKey === 'show' && typeof value === 'string') ? value === '1' || value === 'true' : value;
               newState[key] = { ...newState[key], [subKey]: finalVal };
-              return newState;
             }
           }
         }
@@ -331,7 +381,6 @@ export function ThemeProvider({ children }) {
         if (id.startsWith('vrt_color_')) {
           const colorKey = id.replace('vrt_color_', '').replace(/_([a-z])/g, (g) => g[1].toUpperCase());
           newState.colors = { ...newState.colors, [colorKey]: value };
-          return newState;
         }
 
         // 5. Numbered items
@@ -356,25 +405,18 @@ export function ThemeProvider({ children }) {
               items[idx] = { ...items[idx], [field]: value };
               newState.about = { ...newState.about, [subKey]: items };
             }
-            return newState;
-          }
-
-          if (sectionKey === 'contact' && field === 'icon' || field === 'label' || field === 'value') {
+          } else if (sectionKey === 'contact' && field === 'icon' || field === 'label' || field === 'value') {
             const items = [...newState.contact.info];
             if (items[idx]) {
               items[idx] = { ...items[idx], [field]: value };
               newState.contact = { ...newState.contact, info: items };
             }
-            return newState;
-          }
-
-          if (newState[sectionKey] && newState[sectionKey].items) {
+          } else if (newState[sectionKey] && newState[sectionKey].items) {
             const items = [...newState[sectionKey].items];
             if (items[idx]) {
               items[idx] = { ...items[idx], [field]: value };
               newState[sectionKey] = { ...newState[sectionKey], items };
             }
-            return newState;
           }
         }
 
@@ -382,6 +424,52 @@ export function ThemeProvider({ children }) {
         if (id === 'vrt_font_family') newState.typography = { ...newState.typography, fontFamily: value };
         if (id === 'vrt_font_size') newState.typography = { ...newState.typography, fontSize: parseInt(value) };
         if (id === 'vrt_feature_count') newState.features = { ...newState.features, count: parseInt(value) };
+
+        // 7. Recalculate Combined Navbar Links if any dynamic toggle changed
+        const isDynamicToggle = id.endsWith('_show') && (
+          id === 'vrt_about_show' || id === 'vrt_contact_show' || id === 'vrt_blog_show' || 
+          pagesMap.some(slug => id === `vrt_${slug}_show`)
+        );
+        
+        const isTitleTitleUpdate = id.endsWith('_title') && (
+           id === 'vrt_about_hero_title' || id === 'vrt_contact_hero_title' || id === 'vrt_blog_hero_title' ||
+           pagesMap.some(slug => id === `vrt_${slug}_title`)
+        );
+
+        if (isDynamicToggle || isTitleTitleUpdate || id === 'vrt_theme_navbar_links') {
+          const dynamicLinks = [];
+          if (newState.blog?.show) dynamicLinks.push({ title: newState.blog.heroTitle || 'Blog', url: '/blog' });
+          if (newState.about?.show) dynamicLinks.push({ title: newState.about.hero?.title || 'About', url: '/about' });
+          if (newState.contact?.show) dynamicLinks.push({ title: newState.contact.hero?.title || 'Contact', url: '/contact' });
+          
+          pagesMap.forEach(slug => {
+            if (newState.pages?.[slug]?.show) {
+              dynamicLinks.push({ 
+                title: newState.pages[slug].title || (slug.charAt(0).toUpperCase() + slug.slice(1)), 
+                url: '/' + slug 
+              });
+            }
+          });
+
+          const manualLinks = newState.navbar.manualLinks || [];
+          const finalLinks = [...manualLinks];
+          
+          // Ensure Home is there if not in manual links
+          if (!finalLinks.some(l => l.url === '/')) {
+            finalLinks.unshift({ title: 'Home', url: '/' });
+          }
+
+          const seenUrls = finalLinks.map(l => l.url);
+
+          dynamicLinks.forEach(link => {
+            if (!seenUrls.includes(link.url)) {
+              finalLinks.push(link);
+              seenUrls.push(link.url);
+            }
+          });
+
+          newState.navbar = { ...newState.navbar, links: finalLinks };
+        }
 
         return newState;
       });

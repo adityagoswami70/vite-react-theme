@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * Vite React Theme â€” functions and definitions
  *
@@ -124,6 +124,20 @@ function vrt_get_theme_data() {
         ),
         'restUrl' => esc_url_raw( rest_url( 'wp/v2' ) ),
         'nonce'   => wp_create_nonce( 'wp_rest' ),
+        'colors' => array(
+            'primary'        => get_theme_mod( 'vrt_color_primary', '#6366f1' ),
+            'primaryHover'   => get_theme_mod( 'vrt_color_primary_hover', '#4f46e5' ),
+            'bg'             => get_theme_mod( 'vrt_color_bg', '#0a0a0f' ),
+            'bgAlt'          => get_theme_mod( 'vrt_color_bg_alt', '#111119' ),
+            'surface'        => get_theme_mod( 'vrt_color_surface', '#16161f' ),
+            'text'           => get_theme_mod( 'vrt_color_text', '#f0f0f5' ),
+            'textSecondary'  => get_theme_mod( 'vrt_color_text_secondary', '#9ca3b0' ),
+            'border'         => get_theme_mod( 'vrt_color_border', '#2a2a3a' ),
+        ),
+        'typography' => array(
+            'fontFamily' => get_theme_mod( 'vrt_font_family', 'Inter' ),
+            'fontSize'   => intval( get_theme_mod( 'vrt_font_size', 16 ) ),
+        ),
         'menus'   => array(
             'primary' => vrt_get_menu_items( 'primary' ),
             'footer1' => vrt_get_menu_items( 'footer-1' ),
@@ -179,28 +193,11 @@ function vrt_get_theme_data() {
             'showSearch' => (bool) get_theme_mod( 'vrt_navbar_show_search', true ),
             'sticky'     => (bool) get_theme_mod( 'vrt_navbar_sticky', true ),
             'logoHeight' => intval( get_theme_mod( 'vrt_navbar_logo_height', 32 ) ),
-            'links'      => array_values( array_filter( array(
-                array(
-                    'title' => get_theme_mod( 'vrt_navbar_link_1_label', 'Home' ),
-                    'url'   => get_theme_mod( 'vrt_navbar_link_1_url', '/' ),
-                ),
-                array(
-                    'title' => get_theme_mod( 'vrt_navbar_link_2_label', 'Blog' ),
-                    'url'   => get_theme_mod( 'vrt_navbar_link_2_url', '/blog' ),
-                ),
-                array(
-                    'title' => get_theme_mod( 'vrt_navbar_link_3_label', 'About' ),
-                    'url'   => get_theme_mod( 'vrt_navbar_link_3_url', '/about' ),
-                ),
-                array(
-                    'title' => get_theme_mod( 'vrt_navbar_link_4_label', 'Contact' ),
-                    'url'   => get_theme_mod( 'vrt_navbar_link_4_url', '/contact' ),
-                ),
-            ), function(  ) {
-                return ! empty( ['title'] ) && ! empty( ['url'] );
-            } ) ),
+            'links'      => vrt_get_navbar_links(),
+            'manualLinks' => json_decode(get_theme_mod('vrt_theme_navbar_links', '[]'), true),
         ),
         'blog' => array(
+            'show'        => (bool) get_theme_mod( 'vrt_blog_show', false ),
             'heroShow'    => (bool) get_theme_mod( 'vrt_blog_hero_show', true ),
             'heroTitle'   => get_theme_mod( 'vrt_blog_hero_title', 'Blog' ),
             'heroSubtitle'=> get_theme_mod( 'vrt_blog_hero_subtitle', 'Stories, tips, and insights from our team' ),
@@ -235,7 +232,102 @@ function vrt_get_theme_data() {
         'sectionOrder' => vrt_get_section_order(),
         'about' => vrt_get_about_data(),
         'contact' => vrt_get_contact_data(),
+        'pages' => vrt_get_pages_data(),
     );
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Helper Functions for Navbar & Extra Pages
+// ──────────────────────────────────────────────────────────────────────────────
+function vrt_get_navbar_links() {
+    $links = array();
+    
+    // 1. Check for pages toggled "ON" in their respective sections
+    $toggled_pages = array(
+        'blog'      => array( 'title' => get_theme_mod('vrt_blog_hero_title', 'Blog'), 'url' => '/blog' ),
+        'about'     => array( 'title' => get_theme_mod('vrt_about_hero_title', 'About'), 'url' => '/about' ),
+        'contact'   => array( 'title' => get_theme_mod('vrt_contact_hero_title', 'Contact'), 'url' => '/contact' ),
+    );
+
+    foreach ( $toggled_pages as $slug => $data ) {
+        if ( get_theme_mod( "vrt_{$slug}_show", false ) ) {
+            $links[] = $data;
+        }
+    }
+
+    // Extra pages from the loop
+    $extra_pages = array(
+        'services' => 'Services',
+        'portfolio' => 'Portfolio',
+        'pricing' => 'Pricing',
+        'team' => 'Team',
+        'faq' => 'FAQ',
+        'careers' => 'Careers',
+        'testimonials' => 'Testimonials',
+        'features' => 'Features',
+        'privacy' => 'Privacy',
+        'terms' => 'Terms',
+    );
+    foreach ( $extra_pages as $slug => $short_title ) {
+        if ( get_theme_mod( "vrt_{$slug}_show", false ) ) {
+            $links[] = array(
+                'title' => get_theme_mod( "vrt_{$slug}_title", $short_title ),
+                'url'   => '/' . $slug
+            );
+        }
+    }
+
+    // 2. Get manually saved links
+    $saved = get_theme_mod( 'vrt_theme_navbar_links', '' );
+    $manual_links = array();
+    if ( $saved ) {
+        $parsed = json_decode( $saved, true );
+        if ( is_array( $parsed ) ) {
+            $manual_links = $parsed;
+        }
+    }
+
+    // 3. Merge and remove duplicates by URL
+    $final_links = array();
+    $seen_urls = array();
+
+    // ENSURE HOME IS ALWAYS THERE (if not present)
+    $home_present = false;
+    foreach($manual_links as $l) if($l['url'] === '/') $home_present = true;
+    if (!$home_present) {
+        $final_links[] = array( 'title' => 'Home', 'url' => '/' );
+        $seen_urls[] = '/';
+    }
+
+    // Prioritize manual links for order
+    foreach ( $manual_links as $link ) {
+        if ( ! in_array( $link['url'], $seen_urls ) ) {
+            $final_links[] = $link;
+            $seen_urls[] = $link['url'];
+        }
+    }
+
+    foreach ( $links as $link ) {
+        if ( ! in_array( $link['url'], $seen_urls ) ) {
+            $final_links[] = $link;
+            $seen_urls[] = $link['url'];
+        }
+    }
+
+    return $final_links;
+}
+
+function vrt_get_pages_data() {
+    $slugs = array('services', 'portfolio', 'pricing', 'team', 'faq', 'careers', 'testimonials', 'features', 'privacy', 'terms');
+    $data = array();
+    foreach ($slugs as $slug) {
+        $data[$slug] = array(
+            'show' => (bool) get_theme_mod( "vrt_{$slug}_show", false ),
+            'title' => get_theme_mod( "vrt_{$slug}_title", ucfirst($slug) ),
+            'subtitle' => get_theme_mod( "vrt_{$slug}_subtitle", '' ),
+        );
+    }
+    return $data;
 }
 
 // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -283,6 +375,7 @@ function vrt_get_about_data() {
     }
 
     return array(
+        'show' => (bool) get_theme_mod( 'vrt_about_show', false ),
         'hero' => array(
             'title' => get_theme_mod('vrt_about_hero_title', 'About Us'),
             'subtitle' => get_theme_mod('vrt_about_hero_subtitle', "We're building the future of WordPress themes with React, animations, and unmatched customization.")
@@ -322,6 +415,7 @@ function vrt_get_contact_data() {
         );
     }
     return array(
+        'show' => (bool) get_theme_mod( 'vrt_contact_show', false ),
         'hero' => array(
             'title' => get_theme_mod('vrt_contact_hero_title', 'Get in Touch'),
             'subtitle' => get_theme_mod('vrt_contact_hero_subtitle', "Have a question or want to work together? We'd love to hear from you.")
@@ -554,6 +648,43 @@ function vrt_customize_controls_scripts() {
             }
         }
     }
+
+    $pages = get_pages();
+    $preset_pages = array(
+        array( 'title' => 'Home', 'url' => '/' ),
+        array( 'title' => 'Blog', 'url' => '/blog' ),
+        array( 'title' => 'About', 'url' => '/about' ),
+        array( 'title' => 'Contact', 'url' => '/contact' ),
+        array( 'title' => 'Services', 'url' => '/services' ),
+        array( 'title' => 'Portfolio', 'url' => '/portfolio' ),
+        array( 'title' => 'Pricing', 'url' => '/pricing' ),
+        array( 'title' => 'Team', 'url' => '/team' ),
+        array( 'title' => 'FAQ', 'url' => '/faq' ),
+        array( 'title' => 'Careers', 'url' => '/careers' ),
+        array( 'title' => 'Testimonials', 'url' => '/testimonials' ),
+        array( 'title' => 'Features', 'url' => '/features' ),
+        array( 'title' => 'Privacy', 'url' => '/privacy' ),
+        array( 'title' => 'Terms', 'url' => '/terms' ),
+    );
+
+    $page_data_map = array();
+    foreach ( $preset_pages as $pp ) {
+        $page_data_map[ $pp['url'] ] = $pp['title'];
+    }
+
+    $home_url = home_url();
+    foreach ( $pages as $p ) {
+        $url = str_replace( $home_url, '', get_permalink( $p->ID ) );
+        if ( empty( $url ) ) $url = '/';
+        $page_data_map[ $url ] = $p->post_title;
+    }
+    
+    $final_page_data = array();
+    foreach ( $page_data_map as $url => $title ) {
+        $final_page_data[] = array( 'title' => $title, 'url' => $url );
+    }
+
+    wp_localize_script( 'customize-controls', 'VRT_AVAILABLE_PAGES', $final_page_data );
 }
 add_action( 'customize_controls_enqueue_scripts', 'vrt_customize_controls_scripts' );
 
@@ -591,6 +722,16 @@ function vrt_rewrite_rules() {
     add_rewrite_rule( '^blog/([^/]+)/?$', 'index.php', 'top' );
     add_rewrite_rule( '^about/?$', 'index.php', 'top' );
     add_rewrite_rule( '^contact/?$', 'index.php', 'top' );
+    add_rewrite_rule( '^services/?$', 'index.php', 'top' );
+    add_rewrite_rule( '^portfolio/?$', 'index.php', 'top' );
+    add_rewrite_rule( '^pricing/?$', 'index.php', 'top' );
+    add_rewrite_rule( '^team/?$', 'index.php', 'top' );
+    add_rewrite_rule( '^faq/?$', 'index.php', 'top' );
+    add_rewrite_rule( '^careers/?$', 'index.php', 'top' );
+    add_rewrite_rule( '^testimonials/?$', 'index.php', 'top' );
+    add_rewrite_rule( '^features/?$', 'index.php', 'top' );
+    add_rewrite_rule( '^privacy/?$', 'index.php', 'top' );
+    add_rewrite_rule( '^terms/?$', 'index.php', 'top' );
     add_rewrite_rule( '^search/?$', 'index.php', 'top' );
     add_rewrite_rule( '^page/([^/]+)/?$', 'index.php', 'top' );
 }
