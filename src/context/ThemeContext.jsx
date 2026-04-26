@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 /**
- * ThemeContext â€” provides all WordPress customizer values 
+ * ThemeContext — provides all WordPress customizer values 
  * passed via wp_localize_script as window.VRT_DATA
  */
 const defaults = {
@@ -27,7 +27,7 @@ const defaults = {
   typography: { fontFamily: 'Inter', fontSize: 16 },
   hero: {
     show: true,
-    badge: 'âœ¨ Welcome to the future',
+    badge: '✨ Welcome to the future',
     title: 'Build Something Amazing',
     subtitle: 'A modern WordPress theme with clean design, powerful customization, and stunning animations.',
     btn1Text: 'Get Started',
@@ -43,12 +43,12 @@ const defaults = {
     subtitle: 'Everything you need to build modern, high-performance websites.',
     count: 6,
     items: [
-      { icon: 'âš¡', title: 'Lightning Fast', desc: 'Vite-powered builds with instant hot module replacement.' },
-      { icon: 'ðŸŽ¨', title: 'Beautiful Design', desc: 'Clean, professional aesthetics with refined typography.' },
-      { icon: 'ðŸ“±', title: 'Fully Responsive', desc: 'Looks perfect on every device â€” mobile, tablet, desktop.' },
-      { icon: 'ðŸ”’', title: 'Secure & Reliable', desc: 'Built with WordPress best practices for security.' },
-      { icon: 'ðŸš€', title: 'SEO Optimized', desc: 'Semantic HTML and fast load times for higher ranking.' },
-      { icon: 'ðŸŽ¯', title: 'Customizable', desc: 'Change everything from the WordPress Customizer.' },
+      { icon: '⚡', title: 'Lightning Fast', desc: 'Vite-powered builds with instant hot module replacement.' },
+      { icon: '🎨', title: 'Beautiful Design', desc: 'Clean, professional aesthetics with refined typography.' },
+      { icon: '📱', title: 'Fully Responsive', desc: 'Looks perfect on every device — mobile, tablet, desktop.' },
+      { icon: '🔒', title: 'Secure & Reliable', desc: 'Built with WordPress best practices for security.' },
+      { icon: '🚀', title: 'SEO Optimized', desc: 'Semantic HTML and fast load times for higher ranking.' },
+      { icon: '🎯', title: 'Customizable', desc: 'Change everything from the WordPress Customizer.' },
     ],
   },
   testimonials: {
@@ -65,10 +65,10 @@ const defaults = {
   stats: {
     show: true,
     items: [
-      { icon: 'ðŸš€', number: '10K+', label: 'Active Users' },
-      { icon: 'â­', number: '4.9', label: 'Average Rating' },
-      { icon: 'ðŸŒ', number: '50+', label: 'Countries' },
-      { icon: 'ðŸ’¬', number: '1M+', label: 'Posts Created' },
+      { icon: '🚀', number: '10K+', label: 'Active Users' },
+      { icon: '⭐', number: '4.9', label: 'Average Rating' },
+      { icon: '🌐', number: '50+', label: 'Countries' },
+      { icon: '💬', number: '1M+', label: 'Posts Created' },
     ],
   },
   cta: {
@@ -77,6 +77,8 @@ const defaults = {
     subtitle: 'Join thousands of users building amazing websites with our theme.',
     btnText: 'Get Started Free',
     btnUrl: '#',
+    bgColor: '',
+    textColor: '',
   },
   posts: {
     show: true,
@@ -106,12 +108,16 @@ const defaults = {
     showSearch: true,
     sticky: true,
     logoHeight: 32,
+    brandTitle: '',
+    previewText: '',
     links: [],
     manualLinks: [],
   },
+  pages: {}, // Holds services, portfolio, etc.
   about: {
     show: false,
     hero: { title: 'About Us', subtitle: '' },
+    navTitle: '',
     story: ['', '', ''],
     teamLabel: 'Our Team',
     teamTitle: 'Meet the Makers',
@@ -123,11 +129,13 @@ const defaults = {
   contact: {
     show: false,
     hero: { title: 'Get in Touch', subtitle: '' },
+    navTitle: '',
     info: [],
     formTitle: 'Send us a message',
   },
   blog: {
     show: false,
+    navTitle: '',
     heroShow: true,
     heroTitle: 'Blog',
     heroSubtitle: 'Stories, tips, and insights from our team',
@@ -173,8 +181,6 @@ export function ThemeProvider({ children }) {
   const initialValue = mergeDeep(defaults, wpData);
 
   const [themeState, setThemeState] = useState(() => {
-    // Customizer previews can block storage access in some environments.
-    // Fall back to localized WordPress data so the preview never blanks out.
     const isCustomizer = typeof window !== 'undefined' && window.wp && window.wp.customize;
     if (isCustomizer) {
       try {
@@ -191,10 +197,7 @@ export function ThemeProvider({ children }) {
 
   useEffect(() => {
     const isCustomizer = typeof window !== 'undefined' && window.wp && window.wp.customize;
-    if (!isCustomizer) {
-      return;
-    }
-
+    if (!isCustomizer) return;
     try {
       sessionStorage.setItem('vrt_theme_preview_state', JSON.stringify(themeState));
     } catch (e) {
@@ -217,7 +220,6 @@ export function ThemeProvider({ children }) {
       root.style.setProperty('--color-text-secondary', colors.textSecondary);
       root.style.setProperty('--color-border', colors.border);
 
-      // Helper function to extract RGB from hex for rgba() CSS vars
       const hexToRgb = (hex) => {
         let r = 99, g = 102, b = 241;
         if (/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)) {
@@ -259,23 +261,17 @@ export function ThemeProvider({ children }) {
 
     const handleLiveUpdate = (e) => {
       const { id, value } = e.detail;
-      // console.log('[VRT React] Received live update for:', id, value);
+      const pagesMap = ['services', 'portfolio', 'pricing', 'team', 'faq', 'careers', 'testimonials', 'features', 'privacy', 'terms'];
       
       setThemeState((prevState) => {
         const newState = { ...prevState };
 
-        // 1. Core WP Settings (blogname, blogdescription, custom_logo)
-        if (id === 'blogname') {
-          newState.siteInfo = { ...newState.siteInfo, name: value };
-        }
-        if (id === 'blogdescription') {
-          newState.siteInfo = { ...newState.siteInfo, description: value };
-        }
-        if (id === 'custom_logo') {
-          newState.siteInfo = { ...newState.siteInfo, logoUrl: value };
-        }
+        // 1. Core WP Settings
+        if (id === 'blogname') newState.siteInfo = { ...newState.siteInfo, name: value };
+        if (id === 'blogdescription') newState.siteInfo = { ...newState.siteInfo, description: value };
+        if (id === 'custom_logo') newState.siteInfo = { ...newState.siteInfo, logoUrl: value };
 
-        // 1B. Navbar Links (JSON array)
+        // 1B. Navbar Links
         if (id === 'vrt_theme_navbar_links') {
           try {
             const parsedLinks = typeof value === 'string' && value ? JSON.parse(value) : value;
@@ -283,68 +279,65 @@ export function ThemeProvider({ children }) {
             newState.navbar = { ...newState.navbar, manualLinks: links };
           } catch(e) {}
         }
+        if (id === 'vrt_navbar_brand_title') newState.navbar = { ...newState.navbar, brandTitle: value };
+        if (id === 'vrt_navbar_preview_text') newState.navbar = { ...newState.navbar, previewText: value };
 
-        // 1C. 10 Extra Pages
-        const pagesMap = ['services', 'portfolio', 'pricing', 'team', 'faq', 'careers', 'testimonials', 'features', 'privacy', 'terms'];
-        for (const slug of pagesMap) {
-          if (id.startsWith(`vrt_${slug}_`)) {
-             const subKey = id.replace(`vrt_${slug}_`, '');
-             newState.pages = { ...newState.pages };
-             if (!newState.pages[slug]) newState.pages[slug] = { title: '', subtitle: '' };
-             const finalVal = (subKey === 'show' && typeof value === 'string') ? value === '1' || value === 'true' : value;
-             newState.pages[slug] = { ...newState.pages[slug], [subKey]: finalVal };
+        // 1D. Card-level & Page-level updates
+        const pageCardPatterns = [
+          { regex: /^vrt_services_card(\d+)_(icon|title|desc)$/, page: 'services', prefix: 'card', fieldMap: { icon:'Icon', title:'Title', desc:'Desc' } },
+          { regex: /^vrt_portfolio_card(\d+)_(title|category|img)$/, page: 'portfolio', prefix: 'card', fieldMap: { title:'Title', category:'Category', img:'Img' } },
+          { regex: /^vrt_testimonials_card(\d+)_(name|company|text|rating)$/, page: 'testimonials', prefix: 'card', fieldMap: { name:'Name', company:'Company', text:'Text', rating:'Rating' } },
+          { regex: /^vrt_pricing_tier(\d+)_(title|price|period|desc|features|btn)$/, page: 'pricing', prefix: 'tier', fieldMap: { title:'Title', price:'Price', period:'Period', desc:'Desc', features:'Features', btn:'Btn' } },
+          { regex: /^vrt_faq_item(\d+)_(q|a)$/, page: 'faq', prefix: 'item', fieldMap: { q:'Q', a:'A' } },
+          { regex: /^vrt_careers_job(\d+)_(title|dept|loc|type)$/, page: 'careers', prefix: 'job', fieldMap: { title:'Title', dept:'Dept', loc:'Loc', type:'Type' } },
+          { regex: /^vrt_team_page_member(\d+)_(name|role|img)$/, page: 'team', prefix: 'member', fieldMap: { name:'Name', role:'Role', img:'Img' } },
+          { regex: /^vrt_features_page_card(\d+)_(icon|title|desc)$/, page: 'features', prefix: 'card', fieldMap: { icon:'Icon', title:'Title', desc:'Desc' } },
+        ];
+
+        let handled = false;
+        for (const pat of pageCardPatterns) {
+          const m = id.match(pat.regex);
+          if (m) {
+            const num = m[1];
+            const rawField = m[2];
+            const camelField = pat.fieldMap[rawField] || (rawField.charAt(0).toUpperCase() + rawField.slice(1));
+            const keyName = `${pat.prefix}${num}${camelField}`;
+            newState.pages = {
+              ...newState.pages,
+              [pat.page]: { ...(newState.pages[pat.page] || {}), [keyName]: value }
+            };
+            handled = true;
+            break;
           }
         }
 
-        // 2. Specialty Page Mappings (Blog, About, Contact)
-        
-        // Blog Settings
-        if (id.startsWith('vrt_blog_')) {
-          if (id.startsWith('vrt_blog_card_')) {
-            const subKey = id.replace('vrt_blog_card_', '').replace(/_([a-z])/g, (g) => g[1].toUpperCase());
-            const cardVal = (subKey.startsWith('show') && typeof value === 'string') ? value === '1' || value === 'true' : value;
-            newState.blog = { 
-              ...newState.blog, 
-              card: { ...newState.blog.card, [subKey]: cardVal } 
-            };
-          } else {
+        if (!handled) {
+          // Extra pages generic mapping (show, title, nav_title, subtitle)
+          for (const slug of pagesMap) {
+            if (id.startsWith(`vrt_${slug}_`)) {
+              const subKey = id.replace(`vrt_${slug}_`, '').replace(/_([a-z])/g, (g) => g[1].toUpperCase());
+              const finalVal = (subKey === 'show' && typeof value === 'string') ? value === '1' || value === 'true' : value;
+              newState.pages = {
+                ...newState.pages,
+                [slug]: { ...(newState.pages[slug] || {}), [subKey]: finalVal }
+              };
+              handled = true;
+              break;
+            }
+          }
+        }
+
+        // Specialty Page Mappings
+        if (!handled) {
+          if (id.startsWith('vrt_blog_')) {
             const subKey = id.replace('vrt_blog_', '').replace(/_([a-z])/g, (g) => g[1].toUpperCase());
             const finalVal = ((subKey.endsWith('Show') || subKey === 'show') && typeof value === 'string') ? value === '1' || value === 'true' : value;
             newState.blog = { ...newState.blog, [subKey]: finalVal };
-          }
-        }
-
-        // About Settings
-        if (id.startsWith('vrt_about_')) {
-          if (id.startsWith('vrt_about_hero_')) {
-            const subKey = id.replace('vrt_about_hero_', '').replace(/_([a-z])/g, (g) => g[1].toUpperCase());
-            newState.about = { 
-              ...newState.about, 
-              hero: { ...newState.about.hero, [subKey]: value } 
-            };
-          } else if (id.startsWith('vrt_about_story')) {
-            const storyIdx = parseInt(id.replace('vrt_about_story', '')) - 1;
-            if (!isNaN(storyIdx)) {
-              const story = [...newState.about.story];
-              story[storyIdx] = value;
-              newState.about = { ...newState.about, story };
-            }
-          } else {
+          } else if (id.startsWith('vrt_about_')) {
             const subKey = id.replace('vrt_about_', '').replace(/_([a-z])/g, (g) => g[1].toUpperCase());
             const finalVal = (subKey === 'show' && typeof value === 'string') ? value === '1' || value === 'true' : value;
             newState.about = { ...newState.about, [subKey]: finalVal };
-          }
-        }
-
-        // Contact Settings
-        if (id.startsWith('vrt_contact_')) {
-          if (id.startsWith('vrt_contact_hero_')) {
-            const subKey = id.replace('vrt_contact_hero_', '').replace(/_([a-z])/g, (g) => g[1].toUpperCase());
-            newState.contact = { 
-              ...newState.contact, 
-              hero: { ...newState.contact.hero, [subKey]: value } 
-            };
-          } else {
+          } else if (id.startsWith('vrt_contact_')) {
             const subKey = id.replace('vrt_contact_', '').replace(/_([a-z])/g, (g) => g[1].toUpperCase());
             const finalVal = (subKey === 'show' && typeof value === 'string') ? value === '1' || value === 'true' : value;
             newState.contact = { ...newState.contact, [subKey]: finalVal };
@@ -383,69 +376,20 @@ export function ThemeProvider({ children }) {
           newState.colors = { ...newState.colors, [colorKey]: value };
         }
 
-        // 5. Numbered items
-        const numberedRegex = /^vrt_(feature|testimonial|stat|team|timeline|contact)_(\d+)_(.*)$/;
-        const match = id.match(numberedRegex);
-        if (match) {
-          const [, type, index, field] = match;
-          const idx = parseInt(index) - 1;
-          const sectionKey = {
-            feature: 'features',
-            testimonial: 'testimonials',
-            stat: 'stats',
-            team: 'about', 
-            timeline: 'about',
-            contact: 'contact'
-          }[type];
-
-          if (sectionKey === 'about') {
-            const subKey = type === 'team' ? 'team' : 'timeline';
-            const items = [...newState.about[subKey]];
-            if (items[idx]) {
-              items[idx] = { ...items[idx], [field]: value };
-              newState.about = { ...newState.about, [subKey]: items };
-            }
-          } else if (sectionKey === 'contact' && field === 'icon' || field === 'label' || field === 'value') {
-            const items = [...newState.contact.info];
-            if (items[idx]) {
-              items[idx] = { ...items[idx], [field]: value };
-              newState.contact = { ...newState.contact, info: items };
-            }
-          } else if (newState[sectionKey] && newState[sectionKey].items) {
-            const items = [...newState[sectionKey].items];
-            if (items[idx]) {
-              items[idx] = { ...items[idx], [field]: value };
-              newState[sectionKey] = { ...newState[sectionKey], items };
-            }
-          }
-        }
-
-        // 6. Global special cases
-        if (id === 'vrt_font_family') newState.typography = { ...newState.typography, fontFamily: value };
-        if (id === 'vrt_font_size') newState.typography = { ...newState.typography, fontSize: parseInt(value) };
-        if (id === 'vrt_feature_count') newState.features = { ...newState.features, count: parseInt(value) };
-
-        // 7. Recalculate Combined Navbar Links if any dynamic toggle changed
-        const isDynamicToggle = id.endsWith('_show') && (
-          id === 'vrt_about_show' || id === 'vrt_contact_show' || id === 'vrt_blog_show' || 
-          pagesMap.some(slug => id === `vrt_${slug}_show`)
-        );
-        
-        const isTitleTitleUpdate = id.endsWith('_title') && (
-           id === 'vrt_about_hero_title' || id === 'vrt_contact_hero_title' || id === 'vrt_blog_hero_title' ||
-           pagesMap.some(slug => id === `vrt_${slug}_title`)
-        );
-
-        if (isDynamicToggle || isTitleTitleUpdate || id === 'vrt_theme_navbar_links') {
+        // 5. Global Navbar Updates
+        // Re-generate navbar links if "show" or any "navTitle" / "title" changes
+        const isNavUpdate = id.endsWith('_show') || id.endsWith('_title') || id.endsWith('_nav_title') || id === 'vrt_theme_navbar_links';
+        if (isNavUpdate) {
           const dynamicLinks = [];
-          if (newState.blog?.show) dynamicLinks.push({ title: newState.blog.heroTitle || 'Blog', url: '/blog' });
-          if (newState.about?.show) dynamicLinks.push({ title: newState.about.hero?.title || 'About', url: '/about' });
-          if (newState.contact?.show) dynamicLinks.push({ title: newState.contact.hero?.title || 'Contact', url: '/contact' });
+          if (newState.blog?.show) dynamicLinks.push({ title: newState.blog.navTitle || newState.blog.heroTitle || 'Blog', url: '/blog' });
+          if (newState.about?.show) dynamicLinks.push({ title: newState.about.navTitle || newState.about.heroTitle || 'About', url: '/about' });
+          if (newState.contact?.show) dynamicLinks.push({ title: newState.contact.navTitle || newState.contact.heroTitle || 'Contact', url: '/contact' });
           
           pagesMap.forEach(slug => {
-            if (newState.pages?.[slug]?.show) {
+            const p = newState.pages?.[slug];
+            if (p?.show) {
               dynamicLinks.push({ 
-                title: newState.pages[slug].title || (slug.charAt(0).toUpperCase() + slug.slice(1)), 
+                title: p.navTitle || p.title || (slug.charAt(0).toUpperCase() + slug.slice(1)), 
                 url: '/' + slug 
               });
             }
@@ -453,21 +397,14 @@ export function ThemeProvider({ children }) {
 
           const manualLinks = newState.navbar.manualLinks || [];
           const finalLinks = [...manualLinks];
-          
-          // Ensure Home is there if not in manual links
-          if (!finalLinks.some(l => l.url === '/')) {
-            finalLinks.unshift({ title: 'Home', url: '/' });
-          }
-
+          if (!finalLinks.some(l => l.url === '/')) finalLinks.unshift({ title: 'Home', url: '/' });
           const seenUrls = finalLinks.map(l => l.url);
-
           dynamicLinks.forEach(link => {
             if (!seenUrls.includes(link.url)) {
               finalLinks.push(link);
               seenUrls.push(link.url);
             }
           });
-
           newState.navbar = { ...newState.navbar, links: finalLinks };
         }
 
@@ -483,7 +420,6 @@ export function ThemeProvider({ children }) {
     };
   }, []);
 
-
   return (
     <ThemeContext.Provider value={themeState}>
       {children}
@@ -496,4 +432,3 @@ export function useTheme() {
 }
 
 export default ThemeContext;
-

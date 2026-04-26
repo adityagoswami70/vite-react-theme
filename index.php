@@ -1,9 +1,14 @@
-﻿<?php
+<?php
 /**
  * Main template with PHP fallback for Customizer and front-end reliability.
  *
  * @package ViteReactTheme
  */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly.
+}
+
 get_header();
 
 $hero_title    = get_theme_mod( 'vrt_hero_title', 'Build Something Amazing' );
@@ -153,18 +158,19 @@ $hero_image    = get_theme_mod( 'vrt_hero_bg_image', '' );
   function syncFallbackVisibility() {
     var fallback = document.getElementById('vrt-static-preview');
     var appRoot = document.getElementById('vrt-app');
-    if (!fallback || !appRoot) {
-      return;
-    }
+    if (!fallback || !appRoot) return;
 
     if (appRoot.children.length > 0) {
       fallback.style.display = 'none';
+      console.log('[VRT] React application detected. Hiding static fallback.');
       return;
     }
 
     attempts += 1;
-    if (attempts < 20) {
+    if (attempts < 40) { // Check for 10 seconds (250ms * 40)
       setTimeout(syncFallbackVisibility, 250);
+    } else {
+      console.warn('[VRT] React application failed to mount within timeout. Static fallback remains visible.');
     }
   }
 

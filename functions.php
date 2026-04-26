@@ -7,7 +7,7 @@
  */
 
 define( 'VRT_VERSION', wp_get_theme()->get( 'Version' ) );
-define( 'IS_VITE_DEVELOPMENT', false );
+define( 'IS_VITE_DEVELOPMENT', true );
 
 // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // 1. Theme Setup
@@ -80,7 +80,7 @@ function vrt_scripts() {
     }
 
     // Pass all theme data to React
-    wp_localize_script( IS_VITE_DEVELOPMENT ? 'vite-react-main' : 'vite-react-main', 'VRT_DATA', vrt_get_theme_data() );
+    wp_localize_script( 'vite-react-main', 'VRT_DATA', vrt_get_theme_data() );
 }
 add_action( 'wp_enqueue_scripts', 'vrt_scripts' );
 
@@ -164,6 +164,8 @@ function vrt_get_theme_data() {
             'subtitle'=> get_theme_mod( 'vrt_cta_subtitle', 'Join thousands of users building amazing websites with our theme.' ),
             'btnText' => get_theme_mod( 'vrt_cta_btn_text', 'Get Started Free' ),
             'btnUrl'  => get_theme_mod( 'vrt_cta_btn_url', '#' ),
+            'bgColor' => get_theme_mod( 'vrt_cta_bg_color', '' ),
+            'textColor'=> get_theme_mod( 'vrt_cta_text_color', '' ),
         ),
         'posts' => array(
             'show'   => (bool) get_theme_mod( 'vrt_posts_show', true ),
@@ -188,12 +190,14 @@ function vrt_get_theme_data() {
             'copyright' => get_theme_mod( 'vrt_footer_copyright', '' ),
         ),
         'navbar' => array(
-            'show'       => (bool) get_theme_mod( 'vrt_navbar_show', true ),
-            'style'      => get_theme_mod( 'vrt_navbar_style', 'glass' ),
-            'showSearch' => (bool) get_theme_mod( 'vrt_navbar_show_search', true ),
-            'sticky'     => (bool) get_theme_mod( 'vrt_navbar_sticky', true ),
-            'logoHeight' => intval( get_theme_mod( 'vrt_navbar_logo_height', 32 ) ),
-            'links'      => vrt_get_navbar_links(),
+            'show'        => (bool) get_theme_mod( 'vrt_navbar_show', true ),
+            'style'       => get_theme_mod( 'vrt_navbar_style', 'glass' ),
+            'showSearch'  => (bool) get_theme_mod( 'vrt_navbar_show_search', true ),
+            'sticky'      => (bool) get_theme_mod( 'vrt_navbar_sticky', true ),
+            'logoHeight'  => intval( get_theme_mod( 'vrt_navbar_logo_height', 32 ) ),
+            'brandTitle'  => get_theme_mod( 'vrt_navbar_brand_title', '' ),
+            'previewText' => get_theme_mod( 'vrt_navbar_preview_text', '' ),
+            'links'       => vrt_get_navbar_links(),
             'manualLinks' => json_decode(get_theme_mod('vrt_theme_navbar_links', '[]'), true),
         ),
         'blog' => array(
@@ -244,9 +248,18 @@ function vrt_get_navbar_links() {
     
     // 1. Check for pages toggled "ON" in their respective sections
     $toggled_pages = array(
-        'blog'      => array( 'title' => get_theme_mod('vrt_blog_hero_title', 'Blog'), 'url' => '/blog' ),
-        'about'     => array( 'title' => get_theme_mod('vrt_about_hero_title', 'About'), 'url' => '/about' ),
-        'contact'   => array( 'title' => get_theme_mod('vrt_contact_hero_title', 'Contact'), 'url' => '/contact' ),
+        'blog'      => array( 
+            'title' => get_theme_mod('vrt_blog_nav_title') ?: get_theme_mod('vrt_blog_hero_title', 'Blog'), 
+            'url'   => '/blog' 
+        ),
+        'about'     => array( 
+            'title' => get_theme_mod('vrt_about_nav_title') ?: get_theme_mod('vrt_about_hero_title', 'About'), 
+            'url'   => '/about' 
+        ),
+        'contact'   => array( 
+            'title' => get_theme_mod('vrt_contact_nav_title') ?: get_theme_mod('vrt_contact_hero_title', 'Contact'), 
+            'url'   => '/contact' 
+        ),
     );
 
     foreach ( $toggled_pages as $slug => $data ) {
@@ -270,8 +283,9 @@ function vrt_get_navbar_links() {
     );
     foreach ( $extra_pages as $slug => $short_title ) {
         if ( get_theme_mod( "vrt_{$slug}_show", false ) ) {
+            $nav_title = get_theme_mod( "vrt_{$slug}_nav_title", '' );
             $links[] = array(
-                'title' => get_theme_mod( "vrt_{$slug}_title", $short_title ),
+                'title' => $nav_title ?: get_theme_mod( "vrt_{$slug}_title", $short_title ),
                 'url'   => '/' . $slug
             );
         }
@@ -322,13 +336,159 @@ function vrt_get_pages_data() {
     $data = array();
     foreach ($slugs as $slug) {
         $data[$slug] = array(
-            'show' => (bool) get_theme_mod( "vrt_{$slug}_show", false ),
-            'title' => get_theme_mod( "vrt_{$slug}_title", ucfirst($slug) ),
+            'show'     => (bool) get_theme_mod( "vrt_{$slug}_show", false ),
+            'title'    => get_theme_mod( "vrt_{$slug}_title", ucfirst($slug) ),
+            'navTitle' => get_theme_mod( "vrt_{$slug}_nav_title", '' ),
             'subtitle' => get_theme_mod( "vrt_{$slug}_subtitle", '' ),
         );
+
+        // ── Services cards ─────────────────────────────────────────────────
+        if ( $slug === 'services' ) {
+            $defs = array(
+                1 => array( '💻', 'Web Development', 'Custom tailored modern websites built with React and WordPress.' ),
+                2 => array( '🎨', 'UI/UX Design', 'Beautiful, user-centric interfaces focused on conversion and aesthetics.' ),
+                3 => array( '🚀', 'SEO Optimization', 'Higher rankings through structural optimizations and sematic HTML.' ),
+                4 => array( '📈', 'Marketing', 'Data-driven marketing strategies to grow your brand organically.' ),
+                5 => array( '💡', 'Consulting', 'Expert guidance on tech stacks, architectures, and scaling systems.' ),
+                6 => array( '🛒', 'E-Commerce', 'Secure, high-performance online stores that drive real sales.' ),
+            );
+            for ( $ci = 1; $ci <= 6; $ci++ ) {
+                $cd = $defs[$ci];
+                $data['services']["card{$ci}Icon"]  = get_theme_mod( "vrt_services_card{$ci}_icon",  $cd[0] );
+                $data['services']["card{$ci}Title"] = get_theme_mod( "vrt_services_card{$ci}_title", $cd[1] );
+                $data['services']["card{$ci}Desc"]  = get_theme_mod( "vrt_services_card{$ci}_desc",  $cd[2] );
+            }
+        }
+
+        // ── Portfolio cards ────────────────────────────────────────────────
+        if ( $slug === 'portfolio' ) {
+            $defs = array(
+                1 => array( 'Nova E-Commerce',  'Web Development', 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=800' ),
+                2 => array( 'Nexus App',        'Product Design',  'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=800' ),
+                3 => array( 'Aura Branding',    'Identity',        'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&q=80&w=800' ),
+                4 => array( 'Apex Analytics',   'SaaS Platform',   'https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?auto=format&fit=crop&q=80&w=800' ),
+                5 => array( 'Zenith Studio',    'Web Design',      'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&q=80&w=800' ),
+                6 => array( 'Lumina Health',    'App Development', 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&q=80&w=800' ),
+            );
+            for ( $ci = 1; $ci <= 6; $ci++ ) {
+                $cd = $defs[$ci];
+                $data['portfolio']["card{$ci}Title"]    = get_theme_mod( "vrt_portfolio_card{$ci}_title",    $cd[0] );
+                $data['portfolio']["card{$ci}Category"] = get_theme_mod( "vrt_portfolio_card{$ci}_category", $cd[1] );
+                $data['portfolio']["card{$ci}Img"]      = get_theme_mod( "vrt_portfolio_card{$ci}_img",      $cd[2] );
+            }
+        }
+
+        // ── Testimonials reviews ───────────────────────────────────────────
+        if ( $slug === 'testimonials' ) {
+            $defs = array(
+                1 => array( 'John Doe',    'TechCorp',       'An absolutely phenomenal experience from start to finish. The team is incredibly talented.', '5' ),
+                2 => array( 'Jane Smith',  'DesignCo',       'Our conversion rates doubled after implementing their solutions. Highly recommended!',        '5' ),
+                3 => array( 'Mike Johnson','Startup Inc',    'Fast, responsive, and beautifully designed. Worth every penny.',                              '4' ),
+                4 => array( 'Emily Davis', 'Global LLC',     'The support team goes above and beyond. We feel truly valued as customers.',                  '5' ),
+                5 => array( 'Chris Lee',   'Creative Studio','A game changer for our agency. It streamlined our entire workflow.',                          '5' ),
+                6 => array( 'Sarah Wilson','Media Group',    'Very impressive attention to detail. The final product exceeded our expectations.',            '4' ),
+            );
+            for ( $ci = 1; $ci <= 6; $ci++ ) {
+                $cd = $defs[$ci];
+                $data['testimonials']["card{$ci}Name"]    = get_theme_mod( "vrt_testimonials_card{$ci}_name",    $cd[0] );
+                $data['testimonials']["card{$ci}Company"] = get_theme_mod( "vrt_testimonials_card{$ci}_company", $cd[1] );
+                $data['testimonials']["card{$ci}Text"]    = get_theme_mod( "vrt_testimonials_card{$ci}_text",    $cd[2] );
+                $data['testimonials']["card{$ci}Rating"]  = get_theme_mod( "vrt_testimonials_card{$ci}_rating",  $cd[3] );
+            }
+        }
+
+        // ── Pricing tiers ──────────────────────────────────────────────────
+        if ( $slug === 'pricing' ) {
+            $defs = array(
+                1 => array( 'Starter',      '$29',  '/mo', 'Perfect for small businesses starting their digital journey.',       '1 Project, Basic Analytics, 24-hour Support, 1GB Storage', 'Get Starter' ),
+                2 => array( 'Professional', '$79',  '/mo', 'Ideal for growing companies needing advanced capabilities.',         '5 Projects, Advanced Analytics, Priority Support, 10GB Storage, Custom Domains', 'Get Professional' ),
+                3 => array( 'Enterprise',   '$199', '/mo', 'Dedicated solutions for large-scale operations.',                   'Unlimited Projects, Custom Reporting, 24/7 Dedicated Support, Unlimited Storage, API Access, SLA Guarantee', 'Contact Sales' ),
+            );
+            for ( $ci = 1; $ci <= 3; $ci++ ) {
+                $cd = $defs[$ci];
+                $data['pricing']["tier{$ci}Title"]    = get_theme_mod( "vrt_pricing_tier{$ci}_title",    $cd[0] );
+                $data['pricing']["tier{$ci}Price"]    = get_theme_mod( "vrt_pricing_tier{$ci}_price",    $cd[1] );
+                $data['pricing']["tier{$ci}Period"]   = get_theme_mod( "vrt_pricing_tier{$ci}_period",   $cd[2] );
+                $data['pricing']["tier{$ci}Desc"]     = get_theme_mod( "vrt_pricing_tier{$ci}_desc",     $cd[3] );
+                $data['pricing']["tier{$ci}Features"] = get_theme_mod( "vrt_pricing_tier{$ci}_features", $cd[4] );
+                $data['pricing']["tier{$ci}Btn"]      = get_theme_mod( "vrt_pricing_tier{$ci}_btn",      $cd[5] );
+            }
+        }
+
+        // ── FAQ items ──────────────────────────────────────────────────────
+        if ( $slug === 'faq' ) {
+            $defs = array(
+                1 => array( 'How does the 30-day money-back guarantee work?',       'If you are not entirely satisfied with our service, you can cancel within 30 days for a full refund, no questions asked.' ),
+                2 => array( 'Do you offer technical support?',                       'Yes, our team provides 24/7 technical support for all Enterprise clients, and standard business-hours support for Pro and Starter tiers.' ),
+                3 => array( 'Can I upgrade my plan later?',                          'Absolutely. You can upgrade or downgrade your plan at any time through your account dashboard. Prorated charges will apply.' ),
+                4 => array( 'What payment methods do you accept?',                   'We accept all major credit cards, PayPal, and wire transfers for annual Enterprise billing.' ),
+                5 => array( 'Is there a setup fee?',                                 'No, there are no hidden setup fees for Starter or Pro plans. Enterprise plans may incur setup fees depending on customization scope.' ),
+            );
+            for ( $ci = 1; $ci <= 5; $ci++ ) {
+                $cd = $defs[$ci];
+                $data['faq']["item{$ci}Q"] = get_theme_mod( "vrt_faq_item{$ci}_q", $cd[0] );
+                $data['faq']["item{$ci}A"] = get_theme_mod( "vrt_faq_item{$ci}_a", $cd[1] );
+            }
+        }
+
+        // ── Careers jobs ───────────────────────────────────────────────────
+        if ( $slug === 'careers' ) {
+            $data['careers']['applyBtnText'] = get_theme_mod( 'vrt_careers_apply_btn', 'Apply Now' );
+            $defs = array(
+                1 => array( 'Senior Frontend Engineer',   'Engineering', 'Remote',           'Full-time' ),
+                2 => array( 'Product Designer',           'Design',      'San Francisco, CA', 'Full-time' ),
+                3 => array( 'Backend Developer',          'Engineering', 'Remote',           'Contract' ),
+                4 => array( 'Marketing Manager',          'Marketing',   'New York, NY',     'Full-time' ),
+                5 => array( 'Customer Success Specialist','Support',     'Remote',           'Full-time' ),
+            );
+            for ( $ci = 1; $ci <= 5; $ci++ ) {
+                $cd = $defs[$ci];
+                $data['careers']["job{$ci}Title"] = get_theme_mod( "vrt_careers_job{$ci}_title", $cd[0] );
+                $data['careers']["job{$ci}Dept"]  = get_theme_mod( "vrt_careers_job{$ci}_dept",  $cd[1] );
+                $data['careers']["job{$ci}Loc"]   = get_theme_mod( "vrt_careers_job{$ci}_loc",   $cd[2] );
+                $data['careers']["job{$ci}Type"]  = get_theme_mod( "vrt_careers_job{$ci}_type",  $cd[3] );
+            }
+        }
+
+        // ── Team page members ──────────────────────────────────────────────
+        if ( $slug === 'team' ) {
+            $defs = array(
+                1 => array( 'Alex Harper',  'CEO & Founder',   'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=400' ),
+                2 => array( 'Sarah Chen',   'CTO',             'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=400' ),
+                3 => array( 'Michael Ross', 'Lead Designer',   'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=400' ),
+                4 => array( 'Emma Wilson',  'Head of Growth',  'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=400' ),
+                5 => array( 'David Kim',    'Senior Engineer', 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=400' ),
+                6 => array( 'Lisa Ray',     'Product Manager', 'https://images.unsplash.com/photo-1598550874175-4d0ef43ce418?auto=format&fit=crop&q=80&w=400' ),
+            );
+            for ( $ci = 1; $ci <= 6; $ci++ ) {
+                $cd = $defs[$ci];
+                $data['team']["member{$ci}Name"] = get_theme_mod( "vrt_team_page_member{$ci}_name", $cd[0] );
+                $data['team']["member{$ci}Role"] = get_theme_mod( "vrt_team_page_member{$ci}_role", $cd[1] );
+                $data['team']["member{$ci}Img"]  = get_theme_mod( "vrt_team_page_member{$ci}_img",  $cd[2] );
+            }
+        }
+
+        // ── Features page items ────────────────────────────────────────────
+        if ( $slug === 'features' ) {
+            $defs = array(
+                1 => array( '⚡', 'Lightning Fast Performance', 'Built on Vite, experiencing zero-latency loads and absolute peak core web vitals.' ),
+                2 => array( '🔒', 'Bank-Grade Security',        'End-to-end encryption with advanced CSRF and XSS protection built-in by default.' ),
+                3 => array( '🔗', 'Seamless Integrations',      'Connect easily to your favorite tools via our native webhooks and REST APIs.' ),
+                4 => array( '📈', 'Real-time Analytics',        'Watch your traffic grow with up-to-the-second dashboard metrics and reporting.' ),
+                5 => array( '💾', 'Automated Backups',          'Never lose your data. We perform hourly snapshots securely stored in the cloud.' ),
+                6 => array( '🌐', 'Global CDN',                 'Your assets are cached worldwide ensuring millisecond delivery anywhere.' ),
+            );
+            for ( $ci = 1; $ci <= 6; $ci++ ) {
+                $cd = $defs[$ci];
+                $data['features']["card{$ci}Icon"]  = get_theme_mod( "vrt_features_page_card{$ci}_icon",  $cd[0] );
+                $data['features']["card{$ci}Title"] = get_theme_mod( "vrt_features_page_card{$ci}_title", $cd[1] );
+                $data['features']["card{$ci}Desc"]  = get_theme_mod( "vrt_features_page_card{$ci}_desc",  $cd[2] );
+            }
+        }
     }
     return $data;
 }
+
 
 // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Helper Functions for About & Contact
@@ -687,6 +847,24 @@ function vrt_customize_controls_scripts() {
     wp_localize_script( 'customize-controls', 'VRT_AVAILABLE_PAGES', $final_page_data );
 }
 add_action( 'customize_controls_enqueue_scripts', 'vrt_customize_controls_scripts' );
+// Customizer Preview Script for live updates
+function vrt_customize_preview_scripts() {
+    if ( IS_VITE_DEVELOPMENT ) {
+        wp_enqueue_script( 'vrt-customizer-preview', 'http://localhost:5173/src/customizer-preview.js', array(), null, true );
+    } else {
+        $theme_dir = get_template_directory();
+        $theme_uri = get_template_directory_uri();
+        $manifest_path = $theme_dir . '/dist/.vite/manifest.json';
+        if ( file_exists( $manifest_path ) ) {
+            $manifest = json_decode( file_get_contents( $manifest_path ), true );
+            if ( isset( $manifest['src/customizer-preview.js'] ) ) {
+                $js = $manifest['src/customizer-preview.js']['file'];
+                wp_enqueue_script( 'vrt-customizer-preview', $theme_uri . '/dist/' . $js, array(), null, true );
+            }
+        }
+    }
+}
+add_action( 'customize_preview_init', 'vrt_customize_preview_scripts' );
 
 // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // 11. Section Order Helper

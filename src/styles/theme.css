@@ -191,6 +191,19 @@ ul, ol { list-style: none; }
 }
 .navbar-brand:hover { opacity: 0.8; color: var(--color-text); }
 .navbar-brand img { height: 2rem; width: auto; border-radius: var(--radius-xs); }
+.navbar-brand-tagline {
+  display: none; /* Hidden by default, shown on hover */
+  font-size: 0.65rem;
+  font-weight: 400;
+  color: var(--color-text-secondary);
+  letter-spacing: 0;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+.navbar-brand:hover .navbar-brand-tagline { display: block; }
 
 .navbar-links {
   display: flex;

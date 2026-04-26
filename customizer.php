@@ -148,6 +148,12 @@ function vrt_customize_register( $wp_customize ) {
     $wp_customize->add_setting( 'vrt_navbar_sticky', array( 'default' => true, 'sanitize_callback' => 'vrt_sanitize_checkbox', 'transport' => 'postMessage' ) );
     $wp_customize->add_control( 'vrt_navbar_sticky', array( 'label' => __( 'Sticky Navbar', 'vite-react-theme' ), 'section' => 'vrt_navbar', 'type' => 'checkbox' ) );
 
+    $wp_customize->add_setting( 'vrt_navbar_brand_title', array( 'default' => '', 'sanitize_callback' => 'sanitize_text_field', 'transport' => 'postMessage' ) );
+    $wp_customize->add_control( 'vrt_navbar_brand_title', array( 'label' => __( 'Navbar Brand / Logo Title', 'vite-react-theme' ), 'description' => __( 'The name shown next to the logo. Leave empty to use the WordPress site title.', 'vite-react-theme' ), 'section' => 'vrt_navbar', 'type' => 'text' ) );
+
+    $wp_customize->add_setting( 'vrt_navbar_preview_text', array( 'default' => '', 'sanitize_callback' => 'sanitize_text_field', 'transport' => 'postMessage' ) );
+    $wp_customize->add_control( 'vrt_navbar_preview_text', array( 'label' => __( 'Navbar Preview / Tagline Text', 'vite-react-theme' ), 'description' => __( 'Optional tagline shown under the brand name on hover. Leave empty to hide.', 'vite-react-theme' ), 'section' => 'vrt_navbar', 'type' => 'text' ) );
+
     $wp_customize->add_setting( 'vrt_theme_navbar_links', array(
         'default' => '', 'sanitize_callback' => 'vrt_sanitize_json', 'transport' => 'postMessage',
     ) );
@@ -311,6 +317,16 @@ function vrt_customize_register( $wp_customize ) {
         $wp_customize->add_control( $ctrl[0], array( 'label' => __( $ctrl[1], 'vite-react-theme' ), 'section' => 'vrt_cta', 'type' => $ctrl[3] === 'textarea' ? 'textarea' : 'text' ) );
     }
 
+    $wp_customize->add_setting( 'vrt_cta_bg_color', array( 'default' => '', 'sanitize_callback' => 'sanitize_hex_color', 'transport' => 'postMessage' ) );
+    $wp_customize->add_control( new WP_Customize_Color_Control( $wp_customize, 'vrt_cta_bg_color', array(
+        'label' => __( 'Section Background Color', 'vite-react-theme' ), 'section' => 'vrt_cta'
+    ) ) );
+
+    $wp_customize->add_setting( 'vrt_cta_text_color', array( 'default' => '', 'sanitize_callback' => 'sanitize_hex_color', 'transport' => 'postMessage' ) );
+    $wp_customize->add_control( new WP_Customize_Color_Control( $wp_customize, 'vrt_cta_text_color', array(
+        'label' => __( 'Title & Subtitle Color', 'vite-react-theme' ), 'section' => 'vrt_cta'
+    ) ) );
+
     // ══════════════════════════════════════════════════════════════════════════
     // SECTION: Blog / Posts
     // ══════════════════════════════════════════════════════════════════════════
@@ -434,7 +450,9 @@ function vrt_customize_register( $wp_customize ) {
 
     // About Hero
     $wp_customize->add_setting( 'vrt_about_hero_title', array( 'default' => 'About Us', 'sanitize_callback' => 'sanitize_text_field', 'transport' => 'postMessage' ) );
-    $wp_customize->add_control( 'vrt_about_hero_title', array( 'label' => __( 'Hero Title', 'vite-react-theme' ), 'section' => 'vrt_about', 'type' => 'text' ) );
+    $wp_customize->add_control( 'vrt_about_hero_title', array( 'label' => __( 'About Hero Title', 'vite-react-theme' ), 'section' => 'vrt_about', 'type' => 'text' ) );
+    $wp_customize->add_setting( 'vrt_about_nav_title', array( 'default' => 'About', 'sanitize_callback' => 'sanitize_text_field', 'transport' => 'postMessage' ) );
+    $wp_customize->add_control( 'vrt_about_nav_title', array( 'label' => __( 'Navbar Link Text', 'vite-react-theme' ), 'section' => 'vrt_about', 'type' => 'text' ) );
     $wp_customize->add_setting( 'vrt_about_hero_subtitle', array( 'default' => "We're building the future of WordPress themes with React, animations, and unmatched customization.", 'sanitize_callback' => 'sanitize_textarea_field', 'transport' => 'postMessage' ) );
     $wp_customize->add_control( 'vrt_about_hero_subtitle', array( 'label' => __( 'Hero Subtitle', 'vite-react-theme' ), 'section' => 'vrt_about', 'type' => 'textarea' ) );
 
@@ -500,8 +518,11 @@ function vrt_customize_register( $wp_customize ) {
     $wp_customize->add_setting( 'vrt_blog_hero_show', array( 'default' => true, 'sanitize_callback' => 'vrt_sanitize_checkbox', 'transport' => 'postMessage' ) );
     $wp_customize->add_control( 'vrt_blog_hero_show', array( 'label' => __( 'Show Blog Hero', 'vite-react-theme' ), 'section' => 'vrt_blog_page', 'type' => 'checkbox' ) );
 
-    $wp_customize->add_setting( 'vrt_blog_hero_title', array( 'default' => 'Blog', 'sanitize_callback' => 'sanitize_text_field', 'transport' => 'postMessage' ) );
+    $wp_customize->add_setting( 'vrt_blog_hero_title', array( 'default' => 'Our Blog', 'sanitize_callback' => 'sanitize_text_field', 'transport' => 'postMessage' ) );
     $wp_customize->add_control( 'vrt_blog_hero_title', array( 'label' => __( 'Blog Title', 'vite-react-theme' ), 'section' => 'vrt_blog_page', 'type' => 'text' ) );
+
+    $wp_customize->add_setting( 'vrt_blog_nav_title', array( 'default' => 'Blog', 'sanitize_callback' => 'sanitize_text_field', 'transport' => 'postMessage' ) );
+    $wp_customize->add_control( 'vrt_blog_nav_title', array( 'label' => __( 'Navbar Link Text', 'vite-react-theme' ), 'section' => 'vrt_blog_page', 'type' => 'text' ) );
 
     $wp_customize->add_setting( 'vrt_blog_hero_subtitle', array( 'default' => 'Stories, tips, and insights from our team', 'sanitize_callback' => 'sanitize_textarea_field', 'transport' => 'postMessage' ) );
     $wp_customize->add_control( 'vrt_blog_hero_subtitle', array( 'label' => __( 'Blog Subtitle', 'vite-react-theme' ), 'section' => 'vrt_blog_page', 'type' => 'textarea' ) );
@@ -613,9 +634,189 @@ function vrt_customize_register( $wp_customize ) {
 
         $wp_customize->add_setting( "vrt_{$slug}_title", array( 'default' => $data[1], 'sanitize_callback' => 'sanitize_text_field', 'transport' => 'postMessage' ) );
         $wp_customize->add_control( "vrt_{$slug}_title", array( 'label' => __( 'Page Title', 'vite-react-theme' ), 'section' => "vrt_page_{$slug}", 'type' => 'text' ) );
+
+        $wp_customize->add_setting( "vrt_{$slug}_nav_title", array( 'default' => '', 'sanitize_callback' => 'sanitize_text_field', 'transport' => 'postMessage' ) );
+        $wp_customize->add_control( "vrt_{$slug}_nav_title", array( 'label' => __( 'Navbar Link Text (Optional)', 'vite-react-theme' ), 'section' => "vrt_page_{$slug}", 'type' => 'text', 'description' => 'If blank, uses Page Title.' ) );
+
         $wp_customize->add_setting( "vrt_{$slug}_subtitle", array( 'default' => $data[2], 'sanitize_callback' => 'sanitize_textarea_field', 'transport' => 'postMessage' ) );
         $wp_customize->add_control( "vrt_{$slug}_subtitle", array( 'label' => __( 'Page Subtitle', 'vite-react-theme' ), 'section' => "vrt_page_{$slug}", 'type' => 'textarea' ) );
+
+        // ── Services card controls ─────────────────────────────────────────
+        if ( $slug === 'services' ) {
+            $service_defs = array(
+                1 => array( '💻', 'Web Development', 'Custom tailored modern websites built with React and WordPress.' ),
+                2 => array( '🎨', 'UI/UX Design', 'Beautiful, user-centric interfaces focused on conversion and aesthetics.' ),
+                3 => array( '🚀', 'SEO Optimization', 'Higher rankings through structural optimizations and sematic HTML.' ),
+                4 => array( '📈', 'Marketing', 'Data-driven marketing strategies to grow your brand organically.' ),
+                5 => array( '💡', 'Consulting', 'Expert guidance on tech stacks, architectures, and scaling systems.' ),
+                6 => array( '🛒', 'E-Commerce', 'Secure, high-performance online stores that drive real sales.' ),
+            );
+            for ( $ci = 1; $ci <= 6; $ci++ ) {
+                $cd = $service_defs[$ci];
+                $wp_customize->add_setting( "vrt_services_card{$ci}_icon",  array( 'default' => $cd[0], 'sanitize_callback' => 'sanitize_text_field',     'transport' => 'postMessage' ) );
+                $wp_customize->add_control( "vrt_services_card{$ci}_icon",  array( 'label' => sprintf( 'Card %d — Icon/Emoji', $ci ),  'section' => 'vrt_page_services', 'type' => 'text' ) );
+                $wp_customize->add_setting( "vrt_services_card{$ci}_title", array( 'default' => $cd[1], 'sanitize_callback' => 'sanitize_text_field',     'transport' => 'postMessage' ) );
+                $wp_customize->add_control( "vrt_services_card{$ci}_title", array( 'label' => sprintf( 'Card %d — Title', $ci ),       'section' => 'vrt_page_services', 'type' => 'text' ) );
+                $wp_customize->add_setting( "vrt_services_card{$ci}_desc",  array( 'default' => $cd[2], 'sanitize_callback' => 'sanitize_textarea_field', 'transport' => 'postMessage' ) );
+                $wp_customize->add_control( "vrt_services_card{$ci}_desc",  array( 'label' => sprintf( 'Card %d — Description', $ci ), 'section' => 'vrt_page_services', 'type' => 'textarea' ) );
+            }
+        }
+
+        // ── Portfolio card controls ────────────────────────────────────────
+        if ( $slug === 'portfolio' ) {
+            $portfolio_defs = array(
+                1 => array( 'Nova E-Commerce',  'Web Development', 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=800' ),
+                2 => array( 'Nexus App',        'Product Design',  'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=800' ),
+                3 => array( 'Aura Branding',    'Identity',        'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&q=80&w=800' ),
+                4 => array( 'Apex Analytics',   'SaaS Platform',   'https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?auto=format&fit=crop&q=80&w=800' ),
+                5 => array( 'Zenith Studio',    'Web Design',      'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&q=80&w=800' ),
+                6 => array( 'Lumina Health',    'App Development', 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&q=80&w=800' ),
+            );
+            for ( $ci = 1; $ci <= 6; $ci++ ) {
+                $cd = $portfolio_defs[$ci];
+                $wp_customize->add_setting( "vrt_portfolio_card{$ci}_title",    array( 'default' => $cd[0], 'sanitize_callback' => 'sanitize_text_field', 'transport' => 'postMessage' ) );
+                $wp_customize->add_control( "vrt_portfolio_card{$ci}_title",    array( 'label' => sprintf( 'Project %d — Title', $ci ),    'section' => 'vrt_page_portfolio', 'type' => 'text' ) );
+                $wp_customize->add_setting( "vrt_portfolio_card{$ci}_category", array( 'default' => $cd[1], 'sanitize_callback' => 'sanitize_text_field', 'transport' => 'postMessage' ) );
+                $wp_customize->add_control( "vrt_portfolio_card{$ci}_category", array( 'label' => sprintf( 'Project %d — Category', $ci ), 'section' => 'vrt_page_portfolio', 'type' => 'text' ) );
+                $wp_customize->add_setting( "vrt_portfolio_card{$ci}_img",      array( 'default' => $cd[2], 'sanitize_callback' => 'esc_url_raw',         'transport' => 'postMessage' ) );
+                $wp_customize->add_control( "vrt_portfolio_card{$ci}_img",      array( 'label' => sprintf( 'Project %d — Image URL', $ci ), 'section' => 'vrt_page_portfolio', 'type' => 'url' ) );
+            }
+        }
+
+        // ── Testimonials card controls ─────────────────────────────────────
+        if ( $slug === 'testimonials' ) {
+            $test_defs = array(
+                1 => array( 'John Doe',    'TechCorp',       'An absolutely phenomenal experience from start to finish. The team is incredibly talented.', '5' ),
+                2 => array( 'Jane Smith',  'DesignCo',       'Our conversion rates doubled after implementing their solutions. Highly recommended!',        '5' ),
+                3 => array( 'Mike Johnson','Startup Inc',    'Fast, responsive, and beautifully designed. Worth every penny.',                              '4' ),
+                4 => array( 'Emily Davis', 'Global LLC',    'The support team goes above and beyond. We feel truly valued as customers.',                  '5' ),
+                5 => array( 'Chris Lee',   'Creative Studio','A game changer for our agency. It streamlined our entire workflow.',                          '5' ),
+                6 => array( 'Sarah Wilson','Media Group',    'Very impressive attention to detail. The final product exceeded our expectations.',            '4' ),
+            );
+            for ( $ci = 1; $ci <= 6; $ci++ ) {
+                $cd = $test_defs[$ci];
+                $wp_customize->add_setting( "vrt_testimonials_card{$ci}_name",    array( 'default' => $cd[0], 'sanitize_callback' => 'sanitize_text_field',     'transport' => 'postMessage' ) );
+                $wp_customize->add_control( "vrt_testimonials_card{$ci}_name",    array( 'label' => sprintf( 'Review %d — Name', $ci ),    'section' => 'vrt_page_testimonials', 'type' => 'text' ) );
+                $wp_customize->add_setting( "vrt_testimonials_card{$ci}_company", array( 'default' => $cd[1], 'sanitize_callback' => 'sanitize_text_field',     'transport' => 'postMessage' ) );
+                $wp_customize->add_control( "vrt_testimonials_card{$ci}_company", array( 'label' => sprintf( 'Review %d — Company', $ci ), 'section' => 'vrt_page_testimonials', 'type' => 'text' ) );
+                $wp_customize->add_setting( "vrt_testimonials_card{$ci}_text",    array( 'default' => $cd[2], 'sanitize_callback' => 'sanitize_textarea_field', 'transport' => 'postMessage' ) );
+                $wp_customize->add_control( "vrt_testimonials_card{$ci}_text",    array( 'label' => sprintf( 'Review %d — Quote', $ci ),   'section' => 'vrt_page_testimonials', 'type' => 'textarea' ) );
+                $wp_customize->add_setting( "vrt_testimonials_card{$ci}_rating",  array( 'default' => $cd[3], 'sanitize_callback' => 'absint',                  'transport' => 'postMessage' ) );
+                $wp_customize->add_control( new VRT_Number_Control( $wp_customize, "vrt_testimonials_card{$ci}_rating", array(
+                    'label' => sprintf( 'Review %d — Rating (1-5)', $ci ), 'section' => 'vrt_page_testimonials', 'min' => 1, 'max' => 5,
+                ) ) );
+            }
+        }
+
+        // ── Pricing tier controls ──────────────────────────────────────────
+        if ( $slug === 'pricing' ) {
+            $pricing_defs = array(
+                1 => array( 'Starter',      '$29',  '/mo', 'Perfect for small businesses starting their digital journey.',        '1 Project, Basic Analytics, 24-hour Support, 1GB Storage',                                               'Get Starter' ),
+                2 => array( 'Professional', '$79',  '/mo', 'Ideal for growing companies needing advanced capabilities.',          '5 Projects, Advanced Analytics, Priority Support, 10GB Storage, Custom Domains',                         'Get Professional' ),
+                3 => array( 'Enterprise',   '$199', '/mo', 'Dedicated solutions for large-scale operations.',                    'Unlimited Projects, Custom Reporting, 24/7 Dedicated Support, Unlimited Storage, API Access, SLA Guarantee', 'Contact Sales' ),
+            );
+            for ( $ci = 1; $ci <= 3; $ci++ ) {
+                $cd = $pricing_defs[$ci];
+                $wp_customize->add_setting( "vrt_pricing_tier{$ci}_title",    array( 'default' => $cd[0], 'sanitize_callback' => 'sanitize_text_field',     'transport' => 'postMessage' ) );
+                $wp_customize->add_control( "vrt_pricing_tier{$ci}_title",    array( 'label' => sprintf( 'Tier %d — Plan Name', $ci ),       'section' => 'vrt_page_pricing', 'type' => 'text' ) );
+                $wp_customize->add_setting( "vrt_pricing_tier{$ci}_price",    array( 'default' => $cd[1], 'sanitize_callback' => 'sanitize_text_field',     'transport' => 'postMessage' ) );
+                $wp_customize->add_control( "vrt_pricing_tier{$ci}_price",    array( 'label' => sprintf( 'Tier %d — Price (e.g. $29)', $ci ), 'section' => 'vrt_page_pricing', 'type' => 'text' ) );
+                $wp_customize->add_setting( "vrt_pricing_tier{$ci}_period",   array( 'default' => $cd[2], 'sanitize_callback' => 'sanitize_text_field',     'transport' => 'postMessage' ) );
+                $wp_customize->add_control( "vrt_pricing_tier{$ci}_period",   array( 'label' => sprintf( 'Tier %d — Period (e.g. /mo)', $ci ), 'section' => 'vrt_page_pricing', 'type' => 'text' ) );
+                $wp_customize->add_setting( "vrt_pricing_tier{$ci}_desc",     array( 'default' => $cd[3], 'sanitize_callback' => 'sanitize_textarea_field', 'transport' => 'postMessage' ) );
+                $wp_customize->add_control( "vrt_pricing_tier{$ci}_desc",     array( 'label' => sprintf( 'Tier %d — Description', $ci ),     'section' => 'vrt_page_pricing', 'type' => 'textarea' ) );
+                $wp_customize->add_setting( "vrt_pricing_tier{$ci}_features", array( 'default' => $cd[4], 'sanitize_callback' => 'sanitize_textarea_field', 'transport' => 'postMessage' ) );
+                $wp_customize->add_control( "vrt_pricing_tier{$ci}_features", array( 'label' => sprintf( 'Tier %d — Features (comma separated)', $ci ), 'section' => 'vrt_page_pricing', 'type' => 'textarea' ) );
+                $wp_customize->add_setting( "vrt_pricing_tier{$ci}_btn",      array( 'default' => $cd[5], 'sanitize_callback' => 'sanitize_text_field',     'transport' => 'postMessage' ) );
+                $wp_customize->add_control( "vrt_pricing_tier{$ci}_btn",      array( 'label' => sprintf( 'Tier %d — Button Text', $ci ),      'section' => 'vrt_page_pricing', 'type' => 'text' ) );
+            }
+        }
+
+        // ── FAQ item controls ──────────────────────────────────────────────
+        if ( $slug === 'faq' ) {
+            $faq_defs = array(
+                1 => array( 'How does the 30-day money-back guarantee work?',       'If you are not entirely satisfied with our service, you can cancel within 30 days for a full refund, no questions asked.' ),
+                2 => array( 'Do you offer technical support?',                       'Yes, our team provides 24/7 technical support for all Enterprise clients, and standard business-hours support for Pro and Starter tiers.' ),
+                3 => array( 'Can I upgrade my plan later?',                          'Absolutely. You can upgrade or downgrade your plan at any time through your account dashboard. Prorated charges will apply.' ),
+                4 => array( 'What payment methods do you accept?',                   'We accept all major credit cards, PayPal, and wire transfers for annual Enterprise billing.' ),
+                5 => array( 'Is there a setup fee?',                                 'No, there are no hidden setup fees for Starter or Pro plans. Enterprise plans may incur setup fees depending on customization scope.' ),
+            );
+            for ( $ci = 1; $ci <= 5; $ci++ ) {
+                $cd = $faq_defs[$ci];
+                $wp_customize->add_setting( "vrt_faq_item{$ci}_q", array( 'default' => $cd[0], 'sanitize_callback' => 'sanitize_text_field',     'transport' => 'postMessage' ) );
+                $wp_customize->add_control( "vrt_faq_item{$ci}_q", array( 'label' => sprintf( 'FAQ %d — Question', $ci ), 'section' => 'vrt_page_faq', 'type' => 'text' ) );
+                $wp_customize->add_setting( "vrt_faq_item{$ci}_a", array( 'default' => $cd[1], 'sanitize_callback' => 'sanitize_textarea_field', 'transport' => 'postMessage' ) );
+                $wp_customize->add_control( "vrt_faq_item{$ci}_a", array( 'label' => sprintf( 'FAQ %d — Answer', $ci ),   'section' => 'vrt_page_faq', 'type' => 'textarea' ) );
+            }
+        }
+
+        // ── Careers job listing controls ───────────────────────────────────
+        if ( $slug === 'careers' ) {
+            $careers_defs = array(
+                1 => array( 'Senior Frontend Engineer',   'Engineering', 'Remote',          'Full-time' ),
+                2 => array( 'Product Designer',           'Design',      'San Francisco, CA','Full-time' ),
+                3 => array( 'Backend Developer',          'Engineering', 'Remote',          'Contract' ),
+                4 => array( 'Marketing Manager',          'Marketing',   'New York, NY',    'Full-time' ),
+                5 => array( 'Customer Success Specialist','Support',     'Remote',          'Full-time' ),
+            );
+            $wp_customize->add_setting( 'vrt_careers_apply_btn', array( 'default' => 'Apply Now', 'sanitize_callback' => 'sanitize_text_field', 'transport' => 'postMessage' ) );
+            $wp_customize->add_control( 'vrt_careers_apply_btn', array( 'label' => __( 'Apply Button Text', 'vite-react-theme' ), 'section' => 'vrt_page_careers', 'type' => 'text' ) );
+            for ( $ci = 1; $ci <= 5; $ci++ ) {
+                $cd = $careers_defs[$ci];
+                $wp_customize->add_setting( "vrt_careers_job{$ci}_title", array( 'default' => $cd[0], 'sanitize_callback' => 'sanitize_text_field', 'transport' => 'postMessage' ) );
+                $wp_customize->add_control( "vrt_careers_job{$ci}_title", array( 'label' => sprintf( 'Job %d — Title', $ci ),      'section' => 'vrt_page_careers', 'type' => 'text' ) );
+                $wp_customize->add_setting( "vrt_careers_job{$ci}_dept",  array( 'default' => $cd[1], 'sanitize_callback' => 'sanitize_text_field', 'transport' => 'postMessage' ) );
+                $wp_customize->add_control( "vrt_careers_job{$ci}_dept",  array( 'label' => sprintf( 'Job %d — Department', $ci ), 'section' => 'vrt_page_careers', 'type' => 'text' ) );
+                $wp_customize->add_setting( "vrt_careers_job{$ci}_loc",   array( 'default' => $cd[2], 'sanitize_callback' => 'sanitize_text_field', 'transport' => 'postMessage' ) );
+                $wp_customize->add_control( "vrt_careers_job{$ci}_loc",   array( 'label' => sprintf( 'Job %d — Location', $ci ),   'section' => 'vrt_page_careers', 'type' => 'text' ) );
+                $wp_customize->add_setting( "vrt_careers_job{$ci}_type",  array( 'default' => $cd[3], 'sanitize_callback' => 'sanitize_text_field', 'transport' => 'postMessage' ) );
+                $wp_customize->add_control( "vrt_careers_job{$ci}_type",  array( 'label' => sprintf( 'Job %d — Type', $ci ),       'section' => 'vrt_page_careers', 'type' => 'text' ) );
+            }
+        }
+
+        // ── Team member controls ───────────────────────────────────────────
+        if ( $slug === 'team' ) {
+            $team_page_defs = array(
+                1 => array( 'Alex Harper',  'CEO & Founder',    'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=400' ),
+                2 => array( 'Sarah Chen',   'CTO',              'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=400' ),
+                3 => array( 'Michael Ross', 'Lead Designer',    'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=400' ),
+                4 => array( 'Emma Wilson',  'Head of Growth',   'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=400' ),
+                5 => array( 'David Kim',    'Senior Engineer',  'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=400' ),
+                6 => array( 'Lisa Ray',     'Product Manager',  'https://images.unsplash.com/photo-1598550874175-4d0ef43ce418?auto=format&fit=crop&q=80&w=400' ),
+            );
+            for ( $ci = 1; $ci <= 6; $ci++ ) {
+                $cd = $team_page_defs[$ci];
+                $wp_customize->add_setting( "vrt_team_page_member{$ci}_name", array( 'default' => $cd[0], 'sanitize_callback' => 'sanitize_text_field', 'transport' => 'postMessage' ) );
+                $wp_customize->add_control( "vrt_team_page_member{$ci}_name", array( 'label' => sprintf( 'Member %d — Name', $ci ), 'section' => 'vrt_page_team', 'type' => 'text' ) );
+                $wp_customize->add_setting( "vrt_team_page_member{$ci}_role", array( 'default' => $cd[1], 'sanitize_callback' => 'sanitize_text_field', 'transport' => 'postMessage' ) );
+                $wp_customize->add_control( "vrt_team_page_member{$ci}_role", array( 'label' => sprintf( 'Member %d — Role', $ci ), 'section' => 'vrt_page_team', 'type' => 'text' ) );
+                $wp_customize->add_setting( "vrt_team_page_member{$ci}_img",  array( 'default' => $cd[2], 'sanitize_callback' => 'esc_url_raw',         'transport' => 'postMessage' ) );
+                $wp_customize->add_control( "vrt_team_page_member{$ci}_img",  array( 'label' => sprintf( 'Member %d — Photo URL', $ci ), 'section' => 'vrt_page_team', 'type' => 'url' ) );
+            }
+        }
+
+        // ── Features page card controls ────────────────────────────────────
+        if ( $slug === 'features' ) {
+            $feat_defs = array(
+                1 => array( '⚡', 'Lightning Fast Performance', 'Built on Vite, experiencing zero-latency loads and absolute peak core web vitals.' ),
+                2 => array( '🔒', 'Bank-Grade Security',        'End-to-end encryption with advanced CSRF and XSS protection built-in by default.' ),
+                3 => array( '🔗', 'Seamless Integrations',      'Connect easily to your favorite tools via our native webhooks and REST APIs.' ),
+                4 => array( '📈', 'Real-time Analytics',        'Watch your traffic grow with up-to-the-second dashboard metrics and reporting.' ),
+                5 => array( '💾', 'Automated Backups',          'Never lose your data. We perform hourly snapshots securely stored in the cloud.' ),
+                6 => array( '🌐', 'Global CDN',                 'Your assets are cached worldwide ensuring millisecond delivery anywhere.' ),
+            );
+            for ( $ci = 1; $ci <= 6; $ci++ ) {
+                $cd = $feat_defs[$ci];
+                $wp_customize->add_setting( "vrt_features_page_card{$ci}_icon",  array( 'default' => $cd[0], 'sanitize_callback' => 'sanitize_text_field',     'transport' => 'postMessage' ) );
+                $wp_customize->add_control( "vrt_features_page_card{$ci}_icon",  array( 'label' => sprintf( 'Item %d — Icon/Emoji', $ci ),  'section' => 'vrt_page_features', 'type' => 'text' ) );
+                $wp_customize->add_setting( "vrt_features_page_card{$ci}_title", array( 'default' => $cd[1], 'sanitize_callback' => 'sanitize_text_field',     'transport' => 'postMessage' ) );
+                $wp_customize->add_control( "vrt_features_page_card{$ci}_title", array( 'label' => sprintf( 'Item %d — Title', $ci ),        'section' => 'vrt_page_features', 'type' => 'text' ) );
+                $wp_customize->add_setting( "vrt_features_page_card{$ci}_desc",  array( 'default' => $cd[2], 'sanitize_callback' => 'sanitize_textarea_field', 'transport' => 'postMessage' ) );
+                $wp_customize->add_control( "vrt_features_page_card{$ci}_desc",  array( 'label' => sprintf( 'Item %d — Description', $ci ),  'section' => 'vrt_page_features', 'type' => 'textarea' ) );
+            }
+        }
     }
+
 
 
     // ══════════════════════════════════════════════════════════════════════════
@@ -659,13 +860,47 @@ function vrt_customize_preview_js() {
 
             console.log('[VRT Bridge] Initialized and connected to WordPress Customizer.');
 
+            var pageShowToUrl = {
+                'vrt_blog_show': '/blog',
+                'vrt_about_show': '/about',
+                'vrt_contact_show': '/contact',
+                'vrt_services_show': '/services',
+                'vrt_portfolio_show': '/portfolio',
+                'vrt_pricing_show': '/pricing',
+                'vrt_team_show': '/team',
+                'vrt_faq_show': '/faq',
+                'vrt_careers_show': '/careers',
+                'vrt_testimonials_show': '/testimonials',
+                'vrt_features_show': '/features',
+                'vrt_privacy_show': '/privacy',
+                'vrt_terms_show': '/terms'
+            };
+
             function bindSetting(setting) {
-                // Initial bind for value changes
                 setting.bind(function(newVal) {
-                    console.log('[VRT Bridge] Dispatching update:', setting.id, newVal);
+                    // Dispatch regular update to React
                     window.dispatchEvent(new CustomEvent('vrt_live_update', {
                         detail: { id: setting.id, value: newVal }
                     }));
+
+                    // If a "Show in Navbar" toggle was turned ON, navigate to that page
+                    if (pageShowToUrl[setting.id]) {
+                        var isTruthy = newVal === true || newVal === '1' || newVal === 'true' || newVal === 1;
+                        if (isTruthy) {
+                            var targetUrl = pageShowToUrl[setting.id];
+                            // Wait for React state update before navigating
+                            setTimeout(function() {
+                                window.dispatchEvent(new CustomEvent('vrt_request_navigate', {
+                                    detail: { url: targetUrl }
+                                }));
+                            }, 300);
+                            setTimeout(function() {
+                                window.dispatchEvent(new CustomEvent('vrt_request_navigate', {
+                                    detail: { url: targetUrl }
+                                }));
+                            }, 800);
+                        }
+                    }
                 });
 
                 // Specialized handling for Logo URL

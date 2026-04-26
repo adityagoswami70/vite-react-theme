@@ -43,20 +43,28 @@ export default function Navbar() {
     navigate('/search');
   };
 
+  // Navbar brand title: prefer navbar.brandTitle, else siteInfo.name, else 'Flow'
+  const brandTitle = navbar.brandTitle || siteInfo.name || 'Flow';
+  // Navbar preview text: prefer navbar.previewText, else siteInfo.description
+  const previewText = navbar.previewText || siteInfo.description || '';
+
   return (
     <>
       <header className={`site-navbar ${scrolled ? 'scrolled' : ''}`} id="site-navbar">
         <div className="container">
           <div className="navbar-inner">
-            <Link to="/" className="navbar-brand">
+            <Link to="/" className="navbar-brand" title={previewText || undefined}>
               {siteInfo.logoUrl && (
                 <img 
                   src={siteInfo.logoUrl} 
-                  alt="Flow" 
+                  alt={brandTitle} 
                   style={{ height: `${navbar.logoHeight}px` }}
                 />
               )}
-              Flow
+              {brandTitle}
+              {previewText && (
+                <span className="navbar-brand-tagline">{previewText}</span>
+              )}
             </Link>
 
             <nav className="navbar-links" aria-label="Primary navigation">
@@ -78,7 +86,7 @@ export default function Navbar() {
                   onClick={handleSearchClick}
                   aria-label="Search"
                 >
-                  ðŸ”
+                  🔍
                 </button>
               )}
               <button
@@ -86,7 +94,7 @@ export default function Navbar() {
                 onClick={() => setMobileOpen(true)}
                 aria-label="Toggle navigation"
               >
-                â˜°
+                ☰
               </button>
             </div>
           </div>
@@ -107,7 +115,7 @@ export default function Navbar() {
               onClick={() => setMobileOpen(false)}
               aria-label="Close menu"
             >
-              âœ•
+              ✕
             </button>
             {navLinks.map((link, i) => (
               <motion.div
@@ -125,4 +133,3 @@ export default function Navbar() {
     </>
   );
 }
-
