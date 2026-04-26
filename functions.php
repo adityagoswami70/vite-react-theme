@@ -15,7 +15,7 @@ define( 'IS_VITE_DEVELOPMENT', true );
 function vrt_setup() {
     add_theme_support( 'title-tag' );
     add_theme_support( 'custom-logo', array(
-        'height' => 60, 'width' => 200, 'flex-height' => true, 'flex-width' => true,
+        'height' => 60, 'width' => 200, 'flex-height' => false, 'flex-width' => false,
     ) );
     add_theme_support( 'post-thumbnails' );
     set_post_thumbnail_size( 720, 400, true );
@@ -108,7 +108,7 @@ add_filter( 'script_loader_tag', 'vrt_script_type_module', 10, 2 );
 // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function vrt_get_theme_data() {
     $logo_id  = get_theme_mod( 'custom_logo' );
-    $logo_url = $logo_id ? wp_get_attachment_image_url( $logo_id, 'full' ) : '';
+    $logo_url = $logo_id ? wp_get_attachment_image_url( $logo_id, 'custom-logo' ) : '';
 
     // Parse WordPress root-relative URL for SPA base
     $home_path = wp_parse_url( home_url(), PHP_URL_PATH );
